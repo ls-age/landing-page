@@ -114,4 +114,5 @@ workflows:
             - install-deps
       - deploy:
           requires:
-            - test
+            - export
+            - lint
