@@ -36,6 +36,21 @@ jobs:
           name: Building app
           command: npm run build
 
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Lint sources
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+          when: always
+      - store_artifacts:
+          path: ~/reports
+          when: always
+
   test:
     <<: *defaults
     docker:
@@ -57,6 +72,9 @@ workflows:
     jobs:
       - install-deps
       - build:
+          requires:
+            - install-deps
+      - lint:
           requires:
             - install-deps
       - test:
