@@ -78,6 +78,25 @@ jobs:
   #         name: Running tests
   #         command: npm run test
 
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          <<: *git-login
+      - run:
+          name: Deploying changes
+          command: |
+            git clone git@github.com:ls-age/ls-age.github.io.git ../pages
+            cp -r __sapper__/export/* ../pages
+            cd ../pages
+            git add .
+            git commit -m "docs(gh-pages): Update from ls-age/landing-page [ci skip]"
+            git push origin master
+            cd ../project
+
 workflows:
   version: 2
 
@@ -93,3 +112,6 @@ workflows:
       - lint:
           requires:
             - install-deps
+      - deploy:
+          requires:
+            - test
