@@ -64,19 +64,19 @@ jobs:
           path: ~/reports
           when: always
 
-  test:
-    <<: *defaults
-    docker:
-      - image: cypress/base:10
-        environment:
-          # Enable colors in the output
-          TERM: xterm
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Running tests
-          command: npm run test
+  # test:
+  #   <<: *defaults
+  #   docker:
+  #     - image: cypress/base:10
+  #       environment:
+  #         # Enable colors in the output
+  #         TERM: xterm
+  #   steps:
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: Running tests
+  #         command: npm run test
 
 workflows:
   version: 2
@@ -93,6 +93,3 @@ workflows:
       - lint:
           requires:
             - install-deps
-      - test:
-          requires:
-            - build
