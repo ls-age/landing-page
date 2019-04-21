@@ -1,0 +1,8 @@
+{
+  "extends": [
+    "@ls-age/eslint-config/svelte"
+  ],
+  "rules": {
+    "compat/compat": "off"
+  }
+}

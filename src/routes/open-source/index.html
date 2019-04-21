@@ -1,0 +1,130 @@
+<section class="hero is-white is-medium">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Open source
+      </h1>
+      <h2 class="subtitle">
+        I use a lot of open source software - in return I open source most of my own software.
+      </h2>
+
+      <div>
+        <a href="https://github.com/ls-age" class="button is-info">
+          View all {repositories.totalCount} repositories on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<NavbarShadow />
+
+<section class="section">
+  <div class="container">
+    <div class="repo-container">
+      {#each repositories.nodes as repo}
+        <div class="repo">
+          <a class="box" href="open-source/{repo.nameWithOwner}" rel=prefetch>
+            <h3 class="title is-4">{repo.nameWithOwner}</h3>
+
+            <p>{repo.description || ''}</p>
+
+            <div class="space"></div>
+
+            <div class="field is-grouped is-grouped-multiline">
+              <div class="control">
+                <div class="tags has-addons">
+                  <span class="tag">Last pushed</span>
+                  <span class="tag is-info"><TimeAgo value={repo.pushedAt} /></span>
+                </div>
+              </div>
+
+              <div class="control">
+                <div class="tags has-addons">
+                  <span class="tag">Stars</span>
+                  <span class="tag is-warning">{repo.stargazers.totalCount}</span>
+                </div>
+              </div>
+
+              {#if repo.primaryLanguage}
+                <div class="control">
+                  <div class="tags has-addons">
+                    <span class="tag">{repo.primaryLanguage.name}</span>
+                  </div>
+                </div>
+              {/if}
+            </div>
+
+            <!-- <a class="button is-dark" href="{repo.url}">View on GitHub</a> -->
+          </a>
+        </div>
+      {/each}
+    </div>
+  </div>
+</section>
+
+<style type="text/sass">
+  @import "../../styles/theme.scss";
+  @import "bulma/sass/layout/hero.sass";
+  @import "bulma/sass/layout/section.sass";
+  @import "bulma/sass/grid/tiles.sass";
+  @import "bulma/sass/elements/title.sass";
+  @import "bulma/sass/elements/container.sass";
+  @import "bulma/sass/elements/box.sass";
+  @import "bulma/sass/elements/tag.sass";
+  @import "bulma/sass/elements/button.sass";
+  @import "bulma/sass/elements/form.sass";
+  // @import "bulma/sass/components/tabs.sass";
+  @import "bulma/sass/components/navbar.sass";
+
+  .hero {
+    position: relative;
+    z-index: $navbar-fixed-z - 1;
+  }
+
+  .repo-container {
+    margin: -1rem;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .repo {
+    flex-grow: 1;
+    display: flex;
+    width: 30%;
+    padding: 1rem;
+    min-width: 350px;
+    align-items: stretch;
+
+    transition: all 0.1s ease-in-out;
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    > .box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      p {
+        padding-bottom: 1rem;
+      }
+
+      .space {
+        flex: 1;
+      }
+    }
+  }
+</style>
+
+<script>
+  export default {
+    async preload() {
+      const res = await this.fetch('/open-source/repos.json');
+      return await res.json();
+    },
+    components: {
+      NavbarShadow: '../../components/layout/NavbarShadow.html',
+      TimeAgo: '../../components/utils/TimeAgo.html',
+    },
+  };
+</script>

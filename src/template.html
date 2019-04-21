@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width'>
+    <meta name='theme-color' content='#FF2D55'>
+
+    %sapper.base%
+
+    <link rel='stylesheet' href='css/base.css'>
+    <link rel='manifest' href='manifest.json'>
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="images/icons/icon-apple-57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="images/icons/icon-apple-60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="images/icons/icon-apple-72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="images/icons/icon-apple-76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="images/icons/icon-apple-114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="images/icons/icon-apple-120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="images/icons/icon-apple-144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="images/icons/icon-apple-152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="images/icons/icon-apple-180.png" />
+    <link rel="icon" type="image/png" sizes="192x192"  href="images/icons/icon-android-192.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="images/icons/icon-favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="images/icons/icon-favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="images/icons/icon-favicon-96.png" />
+    <link rel="mask-icon" href="images/icons/mask.svg" color="#FF2D55">
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="images/icons/icon-ms-144.png" />
+
+    <!-- Sapper generates a <style> tag containing critical CSS
+          for the current page. CSS for the rest of the app is
+          lazily loaded when it precaches secondary pages -->
+    %sapper.styles%
+
+    <!-- This contains the contents of the <svelte:head> component, if
+          the current page has one -->
+    %sapper.head%
+  </head>
+
+  <body>
+    <!-- The application will be rendered inside this element,
+          because `app/client.js` references it -->
+    <div id='sapper'>%sapper.html%</div>
+
+    <!-- Sapper creates a <script> tag containing `app/client.js`
+          and anything else it needs to hydrate the app and
+          initialise the router -->
+    %sapper.scripts%
+  </body>
+</html>

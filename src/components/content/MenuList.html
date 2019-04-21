@@ -1,0 +1,29 @@
+<ul class="list">
+  {#each children as item}
+    <li>
+      <a href={item.href}>{item.title}</a>
+      {#if item.children}
+        <svelte:self children={item.children} _root={false} />
+      {/if}
+    </li>
+  {/each}
+</ul>
+
+<style type="text/sass">
+  @import "../../styles/theme.scss";
+  @import "bulma/sass/components/menu.sass";
+
+  :global(.list) {
+    @extend .menu-list;
+  }
+</style>
+
+<script>
+  export default {
+    data() {
+      return {
+        _root: true,
+      };
+    },
+  };
+</script>

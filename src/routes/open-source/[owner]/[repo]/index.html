@@ -1,0 +1,109 @@
+<section class="hero is-medium is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">{nameWithOwner}</h1>
+
+      {#if description}
+        <h2 class="subtitle">
+          {description}
+        </h2>
+      {/if}
+
+      <div class="field is-grouped is-grouped-multiline">
+        <div class="control">
+          <div class="tags">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Stars</span>
+              <span class="tag is-warning">{stargazers.totalCount}</span>
+            </div>
+          </div>
+        </div>
+
+        {#if releases.nodes.length}
+          <div class="control">
+            <div class="tags">
+              <div class="tags has-addons">
+                <span class="tag is-dark">Current release</span>
+                <span class="tag is-info">{releases.nodes[0].tagName}</span>
+              </div>
+            </div>
+          </div>
+        {/if}
+      </div>
+
+      <a href={url} class="button is-dark is-pulled-right">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<NavbarShadow fixed />
+
+<section class="section has-background-white">
+  <div class="container">
+    <div class="columns under-tabbar">
+      <div class="column">
+        <Content>
+          {#if readme}
+            {@html readme.content}
+          {:else}
+            <i>No readme</i>
+          {/if}
+        </Content>
+      </div>
+      <div class="column is-2 toc">
+        <MenuList {...subNav} />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style type="text/sass">
+  @import "../../../../styles/theme.scss";
+  @import "bulma/sass/layout/section.sass";
+  @import "bulma/sass/elements/container.sass";
+  @import "bulma/sass/elements/box.sass";
+  @import "bulma/sass/grid/columns.sass";
+
+  @import "bulma/sass/layout/hero.sass";
+  @import "bulma/sass/elements/title.sass";
+  @import "bulma/sass/elements/button.sass";
+  @import "bulma/sass/elements/tag.sass";
+  @import "bulma/sass/elements/form.sass";
+  @import "bulma/sass/components/tabs.sass";
+  @import "bulma/sass/components/navbar.sass";
+
+  :global(.toc > .list) {
+    position: -webkit-sticky;
+    position: sticky;
+    top: $navbar-height * 2;
+  }
+</style>
+
+<script>
+  export default {
+    async preload({ params }) {
+      return this.fetch(`open-source/${params.owner}/${params.repo}/info.json`)
+        .then(r => r.json());
+    },
+    computed: {
+      subNav({ params, readme }) {
+        function mapChildren(children) {
+          return children.map((item) => ({
+            title: item.title,
+            href: `open-source/${params.owner}/${params.repo}#${item.slug}`,
+            children: item.children ? mapChildren(item.children) : null,
+          }));
+        }
+        return {
+          title: 'Readme',
+          children: readme ? mapChildren(readme.sections) : [],
+        };
+      },
+    },
+    components: {
+      NavbarShadow: '../../../../components/layout/NavbarShadow.html',
+      MenuList: '../../../../components/content/MenuList.html',
+      Content: '../../../../components/content/Content.html',
+    },
+  };
+</script>

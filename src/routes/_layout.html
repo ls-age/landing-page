@@ -1,0 +1,78 @@
+<Navbar segment={child.segment} path={child.props.path} />
+
+<main>
+  <svelte:component this={child.component} {...child.props}/>
+</main>
+
+<Footer />
+
+{#if child.props.query.contact !== undefined}
+  <div class="modal is-active" transition:fade='{duration: 100}'>
+    <a href="{child.props.path}" sapper-noscroll>
+      <div class="modal-background"></div>
+      <button class="modal-close is-large is-dark" aria-label="close"></button>
+    </a>
+
+    <div class="modal-content" in:zoom='{ delay: 50, duration: 150, easing: quadIn }'>
+      <div class="box has-text-centered content">
+        <h1 class="title">Interested in working together?</h1>
+        <p>Feel free to send me a mail!</p>
+        <p>
+          <a class="button is-link" href="mailto:hello@ls-age.com">hello@ls-age.com</a>
+        </p>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<style type="text/sass">
+  @import "../styles/theme.scss";
+  @import "bulma/sass/components/navbar.sass";
+  @import "bulma/sass/components/modal.sass";
+  @import "bulma/sass/elements/box.sass";
+  @import "bulma/sass/elements/title.sass";
+  @import "bulma/sass/elements/content.sass";
+  @import "bulma/sass/elements/button.sass";
+
+  .modal-background {
+    -webkit-backdrop-filter: blur(3px)
+  }
+
+  main {
+    padding-top: $navbar-height;
+    min-height: 100vh;
+  }
+
+  .box {
+    padding: $box-padding * 4;
+    border: 1px solid $grey-light;
+    box-shadow: none;
+  }
+</style>
+
+<script>
+  import { fade } from 'svelte-transitions';
+  import { quadOut } from 'eases-jsnext'; // eslint-disable-line import/no-extraneous-dependencies
+
+  export default {
+    helpers: {
+      quadIn: quadOut,
+    },
+    components: {
+      Navbar: '../components/layout/Navbar.html',
+      Footer: '../components/layout/Footer.html',
+    },
+    transitions: {
+      fade,
+      zoom(node, { delay = 0, duration = 100, easing }) {
+        return {
+          delay,
+          duration,
+          easing,
+          css: t => `transform: scale(${0.8 + (t * 0.2)})`,
+        };
+      },
+    },
+  };
+</script>
+

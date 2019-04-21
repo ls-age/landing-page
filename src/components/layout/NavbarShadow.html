@@ -1,0 +1,29 @@
+<div class="navbar-shadow" class:is-fixed="fixed"></div>
+
+<style type="text/sass">
+  @import "../../styles/theme.scss";
+  @import "bulma/sass/components/navbar.sass";
+  @import "bulma/sass/elements/box.sass";
+
+  .navbar-shadow {
+    position: -webkit-sticky;
+    position: sticky;
+    top: $navbar-height;
+    border-bottom: 1px solid rgba($black, 0.1);
+    z-index: $navbar-fixed-z - 2;
+
+    &.fixed {
+      position: fixed;
+    }
+  }
+</style>
+
+<script>
+  export default {
+    data() {
+      return {
+        fixed: false,
+      };
+    },
+  };
+</script>

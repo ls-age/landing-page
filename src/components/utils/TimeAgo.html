@@ -1,0 +1,13 @@
+<span ref:label>{formatted}</span>
+
+<script>
+  import { format } from 'timeago.js/lib/format.js';
+
+  export default {
+    computed: {
+      formatted({ value }) {
+        return format(value);
+      },
+    },
+  };
+</script>

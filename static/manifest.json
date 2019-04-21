@@ -1,0 +1,15 @@
+{
+	"background_color": "#ffffff",
+	"theme_color": "#FF2D55",
+	"name": "ls-age",
+	"short_name": "ls-age",
+	"display": "minimal-ui",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "images/icons/icon-android-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		}
+	]
+}

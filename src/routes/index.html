@@ -1,0 +1,148 @@
+<section class="hero is-primary is-fullheight-with-navbar">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <img class="logo" src="images/logo-white.png" alt="ls-age" />
+    </div>
+  </div>
+</section>
+
+<section class="introduction hero is-medium is-white">
+  <div class="hero-body">
+    <div class="container">
+      <figure class="image is-256x256">
+        <img class="is-rounded" src="images/me@2x.png" srcset="images/me@2x.png 2x, images/me@3x.png 3x" alt="Lukas Hechenberger">
+      </figure>
+
+      <div class="text">
+        <h1 class="title">
+          Hey there!
+        </h1>
+        <p class="subtitle">
+          I'm Lukas, a software developer from Vienna / Austria.
+          <a href="open-source">about page</a>
+        </p>
+        <div class="content">
+          <blockquote>
+          <p>I started to teach myself how to program during high school and have not stopped learning new, cutting-edge technologies since then.</p>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="title">What i do</h2>
+
+    <div class="tile is-ancestor">
+      <div class="tile is-parent">
+        <div class="tile is-child box content">
+          <h3>Web Apps</h3>
+          <p>I currently focus on developing high-performance progressive web apps.</p>
+
+          <div class="space"></div>
+
+          <div class="tags">
+            <span class="tag">Svelte</span>
+            <span class="tag">Sapper</span>
+            <span class="tag">React</span>
+            <span class="tag">next.js</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tile is-parent">
+        <div class="tile is-child box content">
+          <h3>Backend Development</h3>
+          <p>Where the real magic happens.</p>
+
+          <div class="space"></div>
+
+          <div class="tags">
+            <span class="tag">Docker</span>
+            <span class="tag">node.js</span>
+            <span class="tag">GraphQL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tile is-ancestor">
+      <div class="tile is-parent">
+        <div class="tile is-child box content">
+          <h3>App Development</h3>
+          <p>iOS, Android, macOS, cross-platform...</p>
+
+          <div class="space"></div>
+
+          <div class="tags">
+            <span class="tag">Swift</span>
+            <span class="tag">React Native</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tile is-parent">
+        <div class="tile is-child box content">
+          <h3>Continuous Delivery</h3>
+          <p>Using modern tools allows me to ship updates and bugfixes withing minutes. Everything that can be automated saves time here!</p>
+
+          <div class="space"></div>
+
+          <div class="tags">
+            <span class="tag">CircleCI</span>
+            <span class="tag">Renovatebot</span>
+            <span class="tag">@ls-age/bump-version</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style type="text/sass">
+  @import "../styles/theme.scss";
+  @import "bulma/sass/layout/hero.sass";
+  @import "bulma/sass/layout/section.sass";
+  @import "bulma/sass/elements/title.sass";
+  @import "bulma/sass/elements/container.sass";
+  @import "bulma/sass/elements/box.sass";
+  @import "bulma/sass/elements/tag.sass";
+  @import "bulma/sass/components/navbar.sass";
+  @import "bulma/sass/grid/tiles.sass";
+  @import "bulma/sass/elements/content.sass";
+
+  $dimensions: 256;
+  @import "bulma/sass/elements/image.sass";
+
+  .logo {
+    width: 165px;
+    height: 46px;
+  }
+
+  .introduction {
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .text {
+      padding-top: $box-padding;
+    }
+  }
+
+  .box.content {
+    display: flex;
+    flex-direction: column;
+
+    .space {
+      flex: 1;
+      min-height: 1rem;
+    }
+
+    .tags {
+      overflow: auto;
+    }
+  }
+</style>

@@ -1,0 +1,94 @@
+<svelte:window bind:innerWidth="innerWidth" />
+
+<nav class="navbar is-fixed-top is-transparent"
+  role="navigation"
+  aria-label="main navigation"
+  class:is-primary="segment === undefined && (!menuOpen)"
+>
+  <div class="navbar-brand">
+    <div role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+      on:click="toggleMenu()"
+      class:is-active="menuOpen"
+    >
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </div>
+  </div>
+
+  {#if menuOpen || desktop}
+    <div class="navbar-menu"
+      class:is-active="menuOpen"
+      transition:slide='{ duration: desktop ? 0 : 300 }'
+      on:click="set({ menuOpen: false })"
+    >
+      <div class="navbar-start">
+        <a class="navbar-item" rel=prefetch href="." class:is-active="segment === undefined">
+          About
+        </a>
+        <a class="navbar-item" rel=prefetch href="open-source" class:is-active="segment === 'open-source'">
+          Open Source
+        </a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="button" href="{path}?contact" sapper-noscroll class:is-primary="segment !== undefined">
+            Contact
+          </a>
+        </div>
+      </div>
+    </div>
+  {/if}
+  {#if menuOpen && !desktop}
+    <div class="menu-overlay" on:click="set({ menuOpen: false })" transition:fade='{ duration: 100 }'></div>
+  {/if}
+</nav>
+
+<style type="text/sass">
+  @import "../../styles/theme.scss";
+
+  $navbar-breakpoint: 400px;
+
+  @import "bulma/sass/elements/button.sass";
+  @import "bulma/sass/components/navbar.sass";
+
+  .navbar {
+    .button {
+      border-width: 0;
+    }
+  }
+
+  .menu-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.2);
+  }
+</style>
+
+<script>
+  import { slide, fade } from 'svelte-transitions';
+
+  export default {
+    data() {
+      return {
+        menuOpen: false,
+      };
+    },
+    computed: {
+      desktop({ innerWidth }) {
+        return innerWidth > 400; // $navbar-breakpoint
+      },
+    },
+    methods: {
+      toggleMenu() {
+        this.set({ menuOpen: !this.get().menuOpen });
+      },
+    },
+    transitions: {
+      slide,
+      fade,
+    },
+  };
+</script>
