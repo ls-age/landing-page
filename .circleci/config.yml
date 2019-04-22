@@ -183,3 +183,10 @@ workflows:
             - test
             - export
             - lint
+          filters:
+            branches:
+              only:
+                - master
+      - lighthouse:
+          requires:
+            - deploy
