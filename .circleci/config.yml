@@ -99,7 +99,7 @@ jobs:
             mv /home/circleci/.cache/Cypress ~/.cache/Cypress
       - run:
           name: Running tests
-          command: npm run test
+          command: npm run test:ci
       - store_test_results:
           path: test/report/report.xml
       - store_artifacts:

@@ -28,8 +28,8 @@
     "sass:base": "node-sass src/styles/base.scss -o static/css --include-path node_modules",
     "sass:debug": "npm run -s sass:base -- --source-map static/css/base.css.map --source-map-contents",
     "start": "node __sapper__/build",
-    "test": "run-p --race dev:sapper cy:run",
-    "test:junit": "run-p --race dev:sapper cy:run-junit",
+    "test": "run-p --race dev cy:run",
+    "test:ci": "run-p --race start cy:run-junit",
     "clear-cache": "rm -rf data/cache",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
