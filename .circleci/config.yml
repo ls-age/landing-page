@@ -89,6 +89,9 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - restore_cache:
+          keys:
+            - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run:
           name: Put cypress binary in place
           command: mv /home/circleci/.cache/Cypress ~/.cache/Cypress
