@@ -17,7 +17,7 @@
     "build": "run-p build:*",
     "build:sapper": "sapper build --legacy",
     "build:sass": "npm run -s sass:base -- --output-style compressed",
-    "check-links": "blcl ./__sapper__/export -r --filter-level --exclude https://circleci.com/",
+    "check-links": "blcl ./__sapper__/export -r --filter-level 3 --exclude https://circleci.com/",
     "clear-cache": "rm -rf data/cache",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
