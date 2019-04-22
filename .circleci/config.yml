@@ -160,5 +160,4 @@ workflows:
                 - master
       - lighthouse:
           requires:
-            - export
-            - lint
+            - deploy
