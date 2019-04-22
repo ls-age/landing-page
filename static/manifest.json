@@ -3,7 +3,7 @@
 	"theme_color": "#FF2D55",
 	"name": "ls-age",
 	"short_name": "ls-age",
-	"display": "minimal-ui",
+	"display": "fullscreen",
 	"start_url": "/",
 	"icons": [
 		{
