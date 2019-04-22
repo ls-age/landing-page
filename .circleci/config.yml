@@ -109,6 +109,25 @@ jobs:
             git push origin master
             cd ../project
 
+  lighthouse:
+    <<: *defaults
+    docker:
+      - image: emazzotta/lighthouse-badges
+    steps:
+      - checkout
+      - run:
+          name: Update lighthouse badges
+          command: lighthouse-badges -o docs/assets -u https://ls-age.github.io
+      - run:
+          name: Commit lighthouse badges
+          command: |
+            git add docs/assets
+            if git diff --name-only --cached --exit-code; then
+              echo "Nothing to commit";
+            else
+              git commit -m "docs(readme): Update lighthouse badges [ci skip]"
+            fi
+
 workflows:
   version: 2
 
@@ -132,3 +151,7 @@ workflows:
             branches:
               only:
                 - master
+      - lighthouse:
+          requires:
+            - export
+            - lint
