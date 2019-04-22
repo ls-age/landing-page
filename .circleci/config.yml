@@ -190,3 +190,22 @@ workflows:
       - lighthouse:
           requires:
             - deploy
+  update-content:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - install-deps
+      - build:
+          requires:
+            - install-deps
+      - export:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - export
