@@ -90,6 +90,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Put cypress binary in place
+          command: mv /circleci/.cache/Cypress ~/.cache/Cypress
+      - run:
           name: Running tests
           command: npm run test
       - store_test_results:
