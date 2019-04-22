@@ -99,7 +99,7 @@ jobs:
       - run:
           <<: *git-login
       - run:
-          name: Deploying changes
+          name: Deploying to github pages
           command: |
             git clone git@github.com:ls-age/ls-age.github.io.git ../pages
             cp -r __sapper__/export/* ../pages
@@ -128,3 +128,7 @@ workflows:
           requires:
             - export
             - lint
+          filters:
+            branches:
+              only:
+                - master
