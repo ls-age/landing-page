@@ -108,6 +108,9 @@ jobs:
             git commit -m "docs(gh-pages): Update from ls-age/landing-page [ci skip]"
             git push origin master
             cd ../project
+      - run:
+          name: Deploy to ls-age.com
+          command: node ./scripts/deploy.js
 
   lighthouse:
     <<: *defaults
