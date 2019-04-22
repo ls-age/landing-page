@@ -1,6 +1,4 @@
-<svelte:head>
-  <title>ls-age</title>
-</svelte:head>
+<PageMeta title='About' description="Hey there, I'm Lukas, a software developer from Vienna / Austria." />
 
 <section class="hero is-primary is-fullheight-with-navbar">
   <div class="hero-body">
@@ -26,7 +24,7 @@
         </p>
         <div class="content">
           <blockquote>
-          <p>I started to teach myself how to program during high school and have not stopped learning new, cutting-edge technologies since then.</p>
+            <p>I started to teach myself how to program during high school and have not stopped learning new, cutting-edge technologies since then.</p>
           </blockquote>
         </div>
       </div>
@@ -149,3 +147,11 @@
     }
   }
 </style>
+
+<script>
+  export default {
+    components: {
+      PageMeta: '../components/utils/PageMeta.html',
+    },
+  };
+</script>
