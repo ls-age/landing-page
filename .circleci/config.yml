@@ -109,6 +109,32 @@ jobs:
             git push origin master
             cd ../project
 
+  lighthouse:
+    <<: *defaults
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-lighthouse-cache
+      - run:
+          name: Update lighthouse badges
+          command: npx lighthouse-badges -o docs/assets -u https://ls-age.github.io
+      - save_cache:
+          key: v1-lighthouse-cache
+          paths:
+            - ~/.npm
+      - run:
+          name: Commit lighthouse badges
+          command: |
+            git add docs/assets
+            if git diff --name-only --cached --exit-code; then
+              echo "Nothing to commit";
+            else
+              git commit -m "docs(readme): Update lighthouse badges [ci skip]"
+            fi
+
 workflows:
   version: 2
 
@@ -132,3 +158,6 @@ workflows:
             branches:
               only:
                 - master
+      - lighthouse:
+          requires:
+            - deploy

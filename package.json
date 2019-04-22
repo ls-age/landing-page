@@ -8,7 +8,7 @@
   "scripts": {
     "build": "run-p build:*",
     "build:sapper": "sapper build --legacy",
-    "build:sass": "npm run -s sass:base",
+    "build:sass": "npm run -s sass:base -- --output-style compressed",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "dev": "run-p dev:*",
