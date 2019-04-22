@@ -19,6 +19,7 @@
     "build:sass": "npm run -s sass:base -- --output-style compressed",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cy:run-junit": "npm run cy:run -- --reporter junit --reporter-options 'mochaFile=test/report/report.xml'",
     "dev": "run-p dev:*",
     "dev:sapper": "sapper dev",
     "dev:sass": "run-s sass:debug \"sass:debug -- --watch src/styles --recursive\"",
@@ -28,6 +29,7 @@
     "sass:debug": "npm run -s sass:base -- --source-map static/css/base.css.map --source-map-contents",
     "start": "node __sapper__/build",
     "test": "run-p --race dev cy:run",
+    "test:junit": "run-p --race dev cy:run-junit",
     "clear-cache": "rm -rf data/cache",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
