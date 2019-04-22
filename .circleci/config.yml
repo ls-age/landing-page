@@ -53,7 +53,7 @@ jobs:
             - v1-api-cache
       - run:
           name: Exporting app
-          command: npm run export
+          command: npm run export -- --build false
       - save_cache:
           key: v1-api-cache
           paths:
