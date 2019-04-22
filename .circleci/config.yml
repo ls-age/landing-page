@@ -85,13 +85,13 @@ jobs:
         environment:
           # Enable colors in the output
           TERM: xterm
-    working_directory: ~/project
+    working_directory: /home/circleci/project
     steps:
       - attach_workspace:
           at: .
       - run:
           name: Put cypress binary in place
-          command: mv /circleci/.cache/Cypress ~/.cache/Cypress
+          command: mv /home/circleci/.cache/Cypress ~/.cache/Cypress
       - run:
           name: Running tests
           command: npm run test
