@@ -111,13 +111,18 @@ jobs:
 
   lighthouse:
     <<: *defaults
-    docker:
-      - image: emazzotta/lighthouse-badges
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-lighthouse-cache
       - run:
           name: Update lighthouse badges
-          command: lighthouse-badges -o docs/assets -u https://ls-age.github.io
+          command: npx lighthouse-badges -o docs/assets -u https://ls-age.github.io
+      - save_cache:
+          key: v1-lighthouse-cache
+          paths:
+            - ~/.npm
       - run:
           name: Commit lighthouse badges
           command: |
