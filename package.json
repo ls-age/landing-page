@@ -23,7 +23,7 @@
     "dev:sapper": "sapper dev",
     "dev:sass": "run-s sass:debug \"sass:debug -- --watch src/styles --recursive\"",
     "export": "sapper export --legacy",
-    "lint": "eslint src rollup.config.js --ext .js,.html",
+    "lint": "eslint src test rollup.config.js --ext .js,.html",
     "sass:base": "node-sass src/styles/base.scss -o static/css --include-path node_modules",
     "sass:debug": "npm run -s sass:base -- --source-map static/css/base.css.map --source-map-contents",
     "start": "node __sapper__/build",
