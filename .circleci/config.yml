@@ -135,6 +135,7 @@ jobs:
               echo "Nothing to commit";
             else
               git commit -m "docs(readme): Update lighthouse badges [ci skip]"
+              git push origin master
             fi
 
 workflows:
