@@ -2,7 +2,7 @@
 
 > Sources of the landing page at [https://ls-age.github.io](ls-age.github.io).
 
-[![CircleCI](https://circleci.com/gh/LukasHechenberger/landing-page.svg?style=svg)](https://circleci.com/gh/LukasHechenberger/landing-page)
+[![CircleCI](https://circleci.com/gh/ls-age/landing-page.svg?style=svg)](https://circleci.com/gh/ls-age/landing-page)
 
 **Lighthouse performance:**
 
