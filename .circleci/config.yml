@@ -50,12 +50,12 @@ jobs:
           at: .
       - restore_cache:
           keys:
-            - v2-api-cache-{{ .Branch }}
+            - v3-api-cache-{{ .Branch }}
       - run:
           name: Exporting app
           command: npm run export -- --build false
       - save_cache:
-          key: v2-api-cache-{{ .Branch }}
+          key: v3-api-cache-{{ .Branch }}
           paths:
             - ./data/cache
       - persist_to_workspace:
