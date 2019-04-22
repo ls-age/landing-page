@@ -111,6 +111,8 @@ jobs:
 
   lighthouse:
     <<: *defaults
+    docker:
+      - image: circleci/node:10-browsers
     steps:
       - checkout
       - restore_cache:
