@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-unresolved
 import { timestamp, files, shell } from '../__sapper__/service-worker.js';
 
 const ASSETS = `cache${timestamp}`;

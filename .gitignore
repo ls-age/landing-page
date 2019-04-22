@@ -2,5 +2,4 @@ __sapper__
 data
 node_modules
 static/css
-static/images
 test/report
