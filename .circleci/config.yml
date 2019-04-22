@@ -94,7 +94,9 @@ jobs:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run:
           name: Put cypress binary in place
-          command: mv /home/circleci/.cache/Cypress ~/.cache/Cypress
+          command: |
+            mkdir -p /root/.cache
+            mv /home/circleci/.cache/Cypress ~/.cache/Cypress
       - run:
           name: Running tests
           command: npm run test
