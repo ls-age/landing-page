@@ -118,8 +118,9 @@ jobs:
           command: |
             git log -1 --pretty=%B > ../message
             git clone git@github.com:ls-age/ls-age.github.io.git ../pages
-            cp -r __sapper__/export/* ../pages
             cd ../pages
+            git rm -rf .
+            cp -r ../project/__sapper__/export/* .
             git add .
             git commit -m "$(cat ../message)"
             git push origin master
@@ -182,10 +183,3 @@ workflows:
             - test
             - export
             - lint
-          filters:
-            branches:
-              only:
-                - master
-      - lighthouse:
-          requires:
-            - deploy
