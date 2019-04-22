@@ -46,9 +46,16 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - restore_cache:
+          keys:
+            - v1-api-cache
       - run:
           name: Exporting app
           command: npm run export
+      - save_cache:
+          key: v1-api-cache
+          paths:
+            - ./data/cache
       - persist_to_workspace:
           root: .
           paths:
