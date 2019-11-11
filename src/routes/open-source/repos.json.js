@@ -3,15 +3,20 @@ import { jsonErrors } from '../../lib/api';
 
 export const query = `query {
   organization(login: "ls-age") {
-    repositories(privacy: PUBLIC, first: 50, orderBy: { field: PUSHED_AT, direction: DESC }) {
+    repositories(
+      privacy: PUBLIC
+      isFork: false
+      first: 50
+      orderBy: { field: PUSHED_AT, direction: DESC }
+    ) {
       totalCount
       nodes {
         nameWithOwner
         url
         description
         pushedAt
-        stargazers {totalCount}
-        watchers {totalCount}
+        stargazers { totalCount }
+        watchers { totalCount }
         primaryLanguage {
           color
           name

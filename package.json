@@ -17,6 +17,8 @@
     "build": "run-p build:*",
     "build:sapper": "sapper build --legacy",
     "build:sass": "npm run -s sass:base -- --output-style compressed",
+    "check-links": "blcl ./__sapper__/export -r --filter-level 3 --exclude https://circleci.com/",
+    "clear-cache": "rm -rf data/cache",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "cy:run-junit": "npm run cy:run -- --reporter junit --reporter-options 'mochaFile=test/report/report.xml'",
@@ -30,7 +32,6 @@
     "start": "node __sapper__/build",
     "test": "run-p --race dev cy:run",
     "test:ci": "run-p --race start cy:run-junit",
-    "clear-cache": "rm -rf data/cache",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "@babel/preset-env": "^7.4.3",
     "@babel/runtime": "^7.4.3",
     "@ls-age/eslint-config": "^0.9.0",
+    "broken-link-checker-local": "^0.2.0",
     "bulma": "^0.7.4",
     "chokidar": "^2.1.5",
     "cypress": "^3.2.0",

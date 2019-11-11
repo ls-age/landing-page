@@ -50,18 +50,27 @@ jobs:
           at: .
       - restore_cache:
           keys:
-            - v1-api-cache
+            - v3-api-cache-{{ .Branch }}
       - run:
           name: Exporting app
           command: npm run export -- --build false
       - save_cache:
-          key: v1-api-cache
+          key: v3-api-cache-{{ .Branch }}
           paths:
             - ./data/cache
       - persist_to_workspace:
           root: .
           paths:
             - .
+
+  check-links:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Checking for broken links
+          command: npm run check-links
 
   lint:
     <<: *defaults
@@ -175,13 +184,16 @@ workflows:
       - export:
           requires:
             - build
+      - check-links:
+          requires:
+            - export
       - lint:
           requires:
             - install-deps
       - deploy:
           requires:
             - test
-            - export
+            - check-links
             - lint
           filters:
             branches:
