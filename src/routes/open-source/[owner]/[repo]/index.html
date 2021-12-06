@@ -44,13 +44,11 @@
   <div class="container">
     <div class="columns under-tabbar">
       <div class="column">
-        <Content>
-          {#if readme}
-            {@html readme.content}
-          {:else}
-            <i>No readme</i>
+        <ContentComponent>
+          {#if readme} {@html readme.content} {:else}
+          <i>No readme</i>
           {/if}
-        </Content>
+        </ContentComponent>
       </div>
       <div class="column is-2 toc">
         <MenuList {...subNav} />
@@ -94,7 +92,7 @@
       PageMeta: '../../../../components/utils/PageMeta.html',
       NavbarShadow: '../../../../components/layout/NavbarShadow.html',
       MenuList: '../../../../components/content/MenuList.html',
-      Content: '../../../../components/content/Content.html',
+      ContentComponent: '../../../../components/content/Content.html',
     },
   };
 </script>
