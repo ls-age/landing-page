@@ -1,4 +1,4 @@
-<div class="marked-container">
+<div class="marked-container content">
   <div class="marked">
     <slot />
   </div>
@@ -6,17 +6,6 @@
 
 <style type="text/sass">
   @import '../../styles/theme.scss';
-
-  .content-container {
-    .marked {
-      @extend .content;
-    }
-  }
-
-  :global(.marked-container) {
-    // section
-    @extend .content-container;
-  }
 
   :global(.marked) {
     @import 'highlight.js/styles/atom-one-light';
