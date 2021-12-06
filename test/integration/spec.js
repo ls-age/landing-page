@@ -42,8 +42,8 @@ describe('Repo details page', () => {
     cy.contains('h2', 'This package provides ls-age\'s ESLint configuration');
   });
 
-  it('displays the repo\'s readme', () => {
-    cy.contains('h1', '@ls-age/eslint-config');
+  it("displays the repo's readme", () => {
+    cy.contains('h1', 'ls-age/eslint-config');
     cy.contains('h3', 'API docs are linted');
   });
 });
