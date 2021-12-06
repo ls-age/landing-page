@@ -1,6 +1,6 @@
 <PageMeta title='About' description="Hey there, I'm Lukas, a software developer from Vienna / Austria." />
 
-<section class="hero is-primary is-fullheight-with-navbar">
+<section class="hero is-primary is-fullheight-with-navbar logo-hero">
   <div class="hero-body">
     <div class="container has-text-centered">
       <img class="logo" src="images/logo-white.png" alt="ls-age" />
@@ -120,9 +120,16 @@
   $dimensions: 256;
   @import "bulma/sass/elements/image.sass";
 
-  .logo {
-    width: 165px;
-    height: 46px;
+  .logo-hero {
+    .container {
+      display: flex;
+      justify-content: center;
+    }
+    .logo {
+      width: 165px;
+      height: 46px;
+    }
+
   }
 
   .introduction {
