@@ -57,7 +57,7 @@
     "eslint-plugin-html": "5.0.5",
     "ftp-deploy": "^2.3.3",
     "mocha-junit-reporter": "^1.22.0",
-    "node-sass": "4.14.1",
+    "node-sass": "7.0.2",
     "npm-run-all": "^4.1.5",
     "rollup": "^1.10.0",
     "rollup-plugin-babel": "^4.3.2",
