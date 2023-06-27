@@ -47,6 +47,8 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
+            - __sapper__
+            - static/css
             - .
 
   lint:
