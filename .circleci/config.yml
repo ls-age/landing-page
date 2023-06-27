@@ -81,7 +81,7 @@ jobs:
   test:
     <<: *defaults
     docker:
-      - image: cypress/base:18.15
+      - image: cypress/base:18.15.0
         environment:
           # Enable colors in the output
           TERM: xterm
