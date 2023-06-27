@@ -8,7 +8,7 @@ git-login: &git-login
 
 version: 2
 orbs:
-  browser-tools: circleci/browser-tools@1.1.0
+  browser-tools: circleci/browser-tools@1.4.1
 jobs:
   install-deps:
     <<: *defaults
@@ -126,7 +126,7 @@ jobs:
     docker:
       - image: cimg/node:18.13-browsers
     steps:
-      - browser-tools/install-browser-tools
+      - browser-tools/install-chrome
       - checkout
       - run:
           <<: *git-login
