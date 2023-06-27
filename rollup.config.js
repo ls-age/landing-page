@@ -18,12 +18,19 @@ const svelteOptions = {
   dev,
   preprocess: {
     style: sass({
-      includePaths: [
-        join(__dirname, 'node_modules'),
-      ],
+      includePaths: [join(__dirname, 'node_modules')],
     }),
   },
 };
+
+if (dev) {
+  try {
+    // eslint-disable-next-line global-require
+    require('dotenv').config();
+  } catch (error) {
+    console.log('> No .env file found');
+  }
+}
 
 export default {
   client: {
@@ -44,26 +51,34 @@ export default {
       resolve(),
       commonjs(),
 
-      legacy && babel({
-        extensions: ['.js', '.html'],
-        runtimeHelpers: true,
-        exclude: ['node_modules/@babel/**'],
-        presets: [
-          ['@babel/preset-env', {
-            targets: '> 0.25%, not dead',
-          }],
-        ],
-        plugins: [
-          '@babel/plugin-syntax-dynamic-import',
-          ['@babel/plugin-transform-runtime', {
-            useESModules: true,
-          }],
-        ],
-      }),
+      legacy &&
+        babel({
+          extensions: ['.js', '.html'],
+          runtimeHelpers: true,
+          exclude: ['node_modules/@babel/**'],
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: '> 0.25%, not dead',
+              },
+            ],
+          ],
+          plugins: [
+            '@babel/plugin-syntax-dynamic-import',
+            [
+              '@babel/plugin-transform-runtime',
+              {
+                useESModules: true,
+              },
+            ],
+          ],
+        }),
 
-      !dev && terser({
-        module: true,
-      }),
+      !dev &&
+        terser({
+          module: true,
+        }),
     ],
   },
 
@@ -82,8 +97,7 @@ export default {
       resolve(),
       commonjs(),
     ],
-    external: Object.keys(pkg.dependencies)
-      .concat(builtinModules),
+    external: Object.keys(pkg.dependencies).concat(builtinModules),
   },
 
   serviceworker: {
