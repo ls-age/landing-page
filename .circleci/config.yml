@@ -38,8 +38,11 @@ jobs:
           keys:
             - v1-api-cache
       - run:
-          name: Building and export app
-          command: npm run export
+          name: Building app
+          command: npm run build
+      - run:
+          name: Export app
+          command: npm run export -- --legacy --no-build
       - save_cache:
           key: v1-api-cache
           paths:
