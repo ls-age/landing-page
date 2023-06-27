@@ -31,7 +31,7 @@
     "sass:debug": "npm run -s sass:base -- --embed-sources",
     "start": "node __sapper__/build",
     "start:export": "PORT=3003 sirv __sapper__/export",
-    "test": "run-p --race dev cy:run",
+    "test": "CYPRESS_BASE_URL=http://localhost:3000 run-p --race dev cy:run",
     "test:ci": "run-p --race start:export cy:run-junit",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
