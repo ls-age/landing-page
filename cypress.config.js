@@ -1,4 +1,5 @@
-const { defineConfig } = require('cypress')
+/* eslint-disable import/no-commonjs */
+const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
   fixturesFolder: 'test/fixtures',
@@ -9,9 +10,9 @@ module.exports = defineConfig({
     openMode: 0,
   },
   e2e: {
-    setupNodeEvents(on, config) {},
+    setupNodeEvents() {},
     baseUrl: 'http://localhost:3003',
     specPattern: 'test/integration/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: false,
   },
-})
+});
