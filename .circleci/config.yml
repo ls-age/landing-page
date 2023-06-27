@@ -147,7 +147,7 @@ jobs:
               git commit -m "docs(readme): Update lighthouse badges [ci skip]
 
               $(git log -1 --pretty=%B)"
-              git push origin master
+              git push origin $CIRCLE_BRANCH
             fi
 
 workflows:
