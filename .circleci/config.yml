@@ -124,9 +124,9 @@ jobs:
             git commit -m "$(cat ../message)"
             git push origin master
             cd ../project
-      - run:
-          name: Deploy to ls-age.com
-          command: node ./scripts/deploy.js
+      # - run:
+      #     name: Deploy to ls-age.com
+      #     command: node ./scripts/deploy.js
 
   lighthouse:
     <<: *defaults
@@ -186,6 +186,7 @@ workflows:
             branches:
               only:
                 - master
+                - update-company
       - lighthouse:
           requires:
             - deploy
