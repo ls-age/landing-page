@@ -30,10 +30,9 @@
     "sass:base": "sass src/styles/base.scss static/css/base.css --load-path node_modules --quiet-deps",
     "sass:debug": "npm run -s sass:base -- --embed-sources",
     "start": "node __sapper__/build",
-    "start:export": "npx sirv-cli __sapper__/export",
-    "start:test": "node __sapper__/build || echo 'Server crashed'",
+    "start:export": "sirv __sapper__/export",
     "test": "PORT=3003 run-p --race dev cy:run",
-    "test:ci": "PORT=3003 run-p --race start:test cy:run-junit",
+    "test:ci": "PORT=3003 run-p --race start:export cy:run-junit",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
   "dependencies": {
@@ -75,6 +74,7 @@
     "rollup-plugin-terser": "^4.0.4",
     "sapper": "^0.25.0",
     "sass": "^1.63.6",
+    "sirv-cli": "^2.0.2",
     "svelte": "^2.16.1",
     "svelte-preprocess-sass": "^2.0.1",
     "svelte-transitions": "^1.2.0",
