@@ -71,6 +71,10 @@ jobs:
       - run:
           name: Lint sources
           command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - run:
+          name: Check formatting
+          command: npm run format -- --check
+          when: always
       - store_test_results:
           path: ~/reports
           when: always
@@ -198,9 +202,13 @@ workflows:
       - build:
           requires:
             - install-deps
+      - test:
+          requires:
+            - build
       - export:
           requires:
             - build
       - deploy:
           requires:
             - export
+            - test
