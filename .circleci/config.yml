@@ -8,6 +8,7 @@ git-login: &git-login
 
 version: 2.1
 orbs:
+  browser-tools: circleci/browser-tools@1.4.1
   cypress: cypress-io/cypress@3.1.2
 jobs:
   install-deps:
