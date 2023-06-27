@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/node:10
+    - image: circleci/node:18
 
 git-login: &git-login
   name: Setting up git user
@@ -81,7 +81,7 @@ jobs:
   test:
     <<: *defaults
     docker:
-      - image: cypress/base:10
+      - image: cypress/base:18
         environment:
           # Enable colors in the output
           TERM: xterm
@@ -193,7 +193,7 @@ workflows:
   update-content:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: '0 0 * * *'
           filters:
             branches:
               only:
