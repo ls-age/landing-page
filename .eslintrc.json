@@ -1,7 +1,5 @@
 {
-  "extends": [
-    "@ls-age/eslint-config/svelte"
-  ],
+  "extends": ["@ls-age/eslint-config/svelte", "prettier"],
   "rules": {
     "compat/compat": "off"
   }

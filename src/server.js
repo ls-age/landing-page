@@ -7,12 +7,8 @@ const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
 
 polka()
-  .use(
-    compression({ threshold: 0 }),
-    sirv('static', { dev }),
-    sapper.middleware()
-  )
-  .listen(PORT, err => {
+  .use(compression({ threshold: 0 }), sirv('static', { dev }), sapper.middleware())
+  .listen(PORT, (err) => {
     // eslint-disable-next-line no-console
     if (err) console.error(err);
   });

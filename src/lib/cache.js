@@ -5,7 +5,6 @@ import fetch, { Headers } from 'node-fetch';
 const githubApiToken = process.env.GITHUB_API_TOKEN;
 
 export class ApiCache {
-
   constructor(path, { ttl = 1000 * 60 * 60 * 24 } = {}) {
     this.path = path;
     this.ttl = ttl;
@@ -14,7 +13,7 @@ export class ApiCache {
   async getCached(file) {
     const { timestamp, data } = await readJSON(file);
 
-    if (Date.now() - (new Date(timestamp)).getTime() > this.ttl) {
+    if (Date.now() - new Date(timestamp).getTime() > this.ttl) {
       throw new Error('Cache invalidated');
     }
 
@@ -53,17 +52,15 @@ ${JSON.stringify(result.errors, null, '  ')}`);
   get(key, { query, variables = {} }) {
     const file = join(this.path, `${key}.json`);
 
-    return this.getCached(file)
-      .catch(async () => {
-        // No cached value available
-        const data = await this.refetch({ query, variables });
+    return this.getCached(file).catch(async () => {
+      // No cached value available
+      const data = await this.refetch({ query, variables });
 
-        await outputJSON(file, { timestamp: Date.now(), data });
+      await outputJSON(file, { timestamp: Date.now(), data });
 
-        return data;
-      });
+      return data;
+    });
   }
-
 }
 
 export default new ApiCache(join(process.cwd(), './data/cache'));

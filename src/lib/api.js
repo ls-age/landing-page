@@ -3,7 +3,7 @@
 export function jsonErrors(middleware) {
   return async (req, res) => {
     try {
-      await middleware(req, res, err => {
+      await middleware(req, res, (err) => {
         throw err;
       });
     } catch (err) {
@@ -11,9 +11,11 @@ export function jsonErrors(middleware) {
         'Content-Type': 'application/json',
       });
 
-      res.end(JSON.stringify({
-        message: err.message,
-      }));
+      res.end(
+        JSON.stringify({
+          message: err.message,
+        })
+      );
     }
   };
 }
