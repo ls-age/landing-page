@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/node:18
+    - image: cimg/node:18.13
 
 git-login: &git-login
   name: Setting up git user
