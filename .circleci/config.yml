@@ -131,7 +131,7 @@ jobs:
   lighthouse:
     <<: *defaults
     docker:
-      - image: circleci/node:18-browsers
+      - image: cimg/node:18.13-browsers
     steps:
       - checkout
       - run:
