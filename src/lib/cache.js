@@ -50,7 +50,7 @@ ${JSON.stringify(result.errors, null, '  ')}`);
   }
 
   get(key, { query, variables = {} }) {
-    const file = join(this.path, `${key}.json`);
+    const file = join(this.path, `${key}.json`);
 
     return this.getCached(file).catch(async () => {
       // No cached value available

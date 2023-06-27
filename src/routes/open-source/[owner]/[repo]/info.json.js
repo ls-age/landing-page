@@ -25,7 +25,7 @@ export const query = `query RepoInfo($owner: String!, $repo: String!) {
 async function getInfo(req, res) {
   const variables = { owner: req.params.owner, repo: req.params.repo };
   const repo = (
-    await cache.get(`info/${variables.owner}/${variables.repo}`, {
+    await cache.get(`info/${variables.owner}/${variables.repo}`, {
       query,
       variables,
     })
