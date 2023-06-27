@@ -170,7 +170,7 @@ workflows:
             - install-deps
       - test:
           requires:
-            - build
+            - install-deps
       - export:
           requires:
             - build
