@@ -6,7 +6,7 @@ git-login: &git-login
   name: Setting up git user
   command: git config --global user.email ci@ls-age.com && git config --global user.name "ls-age CI"
 
-version: 2
+version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@1.4.1
 jobs:
