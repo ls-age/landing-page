@@ -1,7 +1,17 @@
+<script>
+  export default {
+    data() {
+      return {
+        year: new Date().getFullYear(),
+      };
+    },
+  };
+</script>
+
 <footer class="footer">
   <div class="content has-text-centered">
     <p>
-      &copy; 2019 Lukas Hechenberger
+      &copy; {year} Lukas Hechenberger
     </p>
     <p>
       Made with <a href="https://sapper.svelte.technology">Sapper</a> and <a href="https://bulma.io">Bulma</a>.
