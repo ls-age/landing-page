@@ -29,6 +29,7 @@ if (dev) {
     const result = require('dotenv').config();
 
     if (result.error) throw result.error;
+    // eslint-disable-next-line no-console
     console.log(`> Loaded from .env file:
   ${Object.entries(result.parsed)
     .map(([key, value]) => `${key}: ${value.slice(0, 10)}...`)
