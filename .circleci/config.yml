@@ -34,26 +34,12 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Building app
-          command: npm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - __sapper__
-            - static/css
-
-  export:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: .
       - restore_cache:
           keys:
             - v1-api-cache
       - run:
-          name: Exporting app
-          command: npm run export -- --build false
+          name: Building and export app
+          command: npm run export
       - save_cache:
           key: v1-api-cache
           paths:
@@ -171,16 +157,13 @@ workflows:
       - test:
           requires:
             - build
-      - export:
-          requires:
-            - build
       - lint:
           requires:
             - install-deps
       - deploy:
           requires:
             - test
-            - export
+            - build
             - lint
           filters:
             branches:
@@ -206,10 +189,7 @@ workflows:
       - test:
           requires:
             - build
-      - export:
-          requires:
-            - build
       - deploy:
           requires:
-            - export
+            - build
             - test
