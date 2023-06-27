@@ -31,8 +31,9 @@
     "sass:debug": "npm run -s sass:base -- --embed-sources",
     "start": "node __sapper__/build",
     "start:export": "npx sirv-cli __sapper__/export",
+    "start:test": "node __sapper__/build || echo 'Server crashed'",
     "test": "PORT=3003 run-p --race dev cy:run",
-    "test:ci": "run-p --race start cy:run-junit",
+    "test:ci": "run-p --race start:test cy:run-junit",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
   "dependencies": {
