@@ -26,10 +26,17 @@ const svelteOptions = {
 if (dev) {
   try {
     // eslint-disable-next-line global-require,import/no-unresolved
-    require('dotenv').config();
+    const result = require('dotenv').config();
+
+    if (result.error) throw result.error;
+    console.log(`> Loaded from .env file:
+  ${Object.entries(result.parsed)
+    .map(([key, value]) => `${key}: ${value.slice(0, 10)}...`)
+    .join('\n  ')}`);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('> No .env file found');
+    console.log(`> No .env file processed:
+  ${error.message}`);
   }
 }
 
