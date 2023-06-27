@@ -80,12 +80,12 @@ jobs:
     executor: cypress/default
     working_directory: /home/circleci/project
     steps:
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
             - v2-npm-deps
-      - attach_workspace:
-          at: .
       - cypress/run-tests:
           cypress-command: npm run cy:run-junit
           start-command: npm run start:export
