@@ -19,6 +19,7 @@ const svelteOptions = {
   preprocess: {
     style: sass({
       includePaths: [join(__dirname, 'node_modules')],
+      quietDeps: true,
     }),
   },
 };

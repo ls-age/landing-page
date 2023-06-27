@@ -27,7 +27,7 @@
     "export": "sapper export --legacy",
     "format": "prettier .",
     "lint": "eslint . --ext .js,.html --ignore-path .gitignore",
-    "sass:base": "sass src/styles/base.scss static/css/base.css --load-path node_modules",
+    "sass:base": "sass src/styles/base.scss static/css/base.css --load-path node_modules --quiet-deps",
     "sass:debug": "npm run -s sass:base -- --embed-sources",
     "start": "node __sapper__/build",
     "start:export": "npx sirv-cli __sapper__/export",
