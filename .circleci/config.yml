@@ -174,7 +174,6 @@ workflows:
             branches:
               only:
                 - master
-                - update-company
       - lighthouse:
           requires:
             - deploy
