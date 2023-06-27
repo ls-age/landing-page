@@ -7,6 +7,8 @@ git-login: &git-login
   command: git config --global user.email ci@ls-age.com && git config --global user.name "ls-age CI"
 
 version: 2
+orbs:
+  browser-tools: circleci/browser-tools@1.1.0
 jobs:
   install-deps:
     <<: *defaults
@@ -124,6 +126,7 @@ jobs:
     docker:
       - image: cimg/node:18.13-browsers
     steps:
+      - browser-tools/install-browser-tools
       - checkout
       - run:
           <<: *git-login
