@@ -5,5 +5,9 @@
   "screenshotsFolder": "test/report/screenshots",
   "videosFolder": "test/report/videos",
   "pluginsFile": false,
-  "supportFile": false
+  "supportFile": false,
+  "retries": {
+    "runMode": 2,
+    "openMode": 0
+  }
 }
