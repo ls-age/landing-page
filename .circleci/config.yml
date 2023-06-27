@@ -8,7 +8,7 @@ git-login: &git-login
 
 version: 2.1
 orbs:
-  browser-tools: circleci/browser-tools@1.4.1
+  cypress: cypress-io/cypress@3.1.2
 jobs:
   install-deps:
     <<: *defaults
@@ -76,22 +76,14 @@ jobs:
           when: always
 
   test:
-    <<: *defaults
-    docker:
-      - image: cypress/included:3.2.0
-        environment:
-          # Enable colors in the output
-          TERM: xterm
+    executor: cypress/default
     working_directory: /home/circleci/project
     steps:
       - attach_workspace:
           at: .
-      - restore_cache:
-          keys:
-            - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run:
-          name: Running tests
-          command: npm run test:ci
+      - cypress/run-tests:
+          cypress-command: npm run cy:run-junit
+          start-command: npm run start:export
       - store_test_results:
           path: test/report
       - store_artifacts:
