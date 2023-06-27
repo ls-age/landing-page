@@ -28,9 +28,7 @@ async function getRepos(req, res) {
     'Content-Type': 'application/json',
   });
 
-  res.end(JSON.stringify({
-    repositories,
-  }));
+  res.end(JSON.stringify({ repositories }));
 }
 
 export const get = jsonErrors(getRepos);

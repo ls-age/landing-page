@@ -2,11 +2,10 @@ import marked from 'marked';
 import slugify from 'slugify';
 import { highlight } from 'highlight.js';
 
-const stripHtml = text => text.replace(/(<([^>]+)>)/ig, '');
-const getSlug = name => slugify(stripHtml(name), { lower: true, remove: /[^a-z0-9 -]/gi });
+const stripHtml = (text) => text.replace(/(<([^>]+)>)/gi, '');
+const getSlug = (name) => slugify(stripHtml(name), { lower: true, remove: /[^a-z0-9 -]/gi });
 
 export class TocRenderer extends marked.Renderer {
-
   constructor() {
     super();
 
@@ -40,7 +39,9 @@ export class TocRenderer extends marked.Renderer {
       if (this.sectionTree.length) {
         const last = this.sectionTree[this.sectionTree.length - 1];
 
-        if (!last.children) { last.children = []; }
+        if (!last.children) {
+          last.children = [];
+        }
         last.children.push(section);
       } else {
         this.meta.sections.push(section);
@@ -51,7 +52,6 @@ export class TocRenderer extends marked.Renderer {
 
     return `<h${level} id="${slug}">${text}</h${level}>`; // <a name="${slug}"></a>
   }
-
 }
 
 marked.setOptions({

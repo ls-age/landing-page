@@ -18,12 +18,27 @@ const svelteOptions = {
   dev,
   preprocess: {
     style: sass({
-      includePaths: [
-        join(__dirname, 'node_modules'),
-      ],
+      includePaths: [join(__dirname, 'node_modules')],
+      quietDeps: true,
     }),
   },
 };
+
+try {
+  // eslint-disable-next-line global-require,import/no-unresolved
+  const result = require('dotenv').config();
+
+  if (result.error) throw result.error;
+  // eslint-disable-next-line no-console
+  console.log(`> Loaded from .env file:
+  ${Object.entries(result.parsed)
+    .map(([key, value]) => `${key}: ${value.slice(0, 10)}...`)
+    .join('\n  ')}`);
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.log(`> No .env file processed:
+  ${error.message}`);
+}
 
 export default {
   client: {
@@ -44,26 +59,34 @@ export default {
       resolve(),
       commonjs(),
 
-      legacy && babel({
-        extensions: ['.js', '.html'],
-        runtimeHelpers: true,
-        exclude: ['node_modules/@babel/**'],
-        presets: [
-          ['@babel/preset-env', {
-            targets: '> 0.25%, not dead',
-          }],
-        ],
-        plugins: [
-          '@babel/plugin-syntax-dynamic-import',
-          ['@babel/plugin-transform-runtime', {
-            useESModules: true,
-          }],
-        ],
-      }),
+      legacy &&
+        babel({
+          extensions: ['.js', '.html'],
+          runtimeHelpers: true,
+          exclude: ['node_modules/@babel/**'],
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: '> 0.25%, not dead',
+              },
+            ],
+          ],
+          plugins: [
+            '@babel/plugin-syntax-dynamic-import',
+            [
+              '@babel/plugin-transform-runtime',
+              {
+                useESModules: true,
+              },
+            ],
+          ],
+        }),
 
-      !dev && terser({
-        module: true,
-      }),
+      !dev &&
+        terser({
+          module: true,
+        }),
     ],
   },
 
@@ -82,8 +105,7 @@ export default {
       resolve(),
       commonjs(),
     ],
-    external: Object.keys(pkg.dependencies)
-      .concat(builtinModules),
+    external: Object.keys(pkg.dependencies).concat(builtinModules),
   },
 
   serviceworker: {

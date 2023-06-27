@@ -1,12 +1,15 @@
 defaults: &defaults
   docker:
-    - image: circleci/node:10
+    - image: cimg/node:18.13
 
 git-login: &git-login
   name: Setting up git user
   command: git config --global user.email ci@ls-age.com && git config --global user.name "ls-age CI"
 
-version: 2
+version: 2.1
+orbs:
+  browser-tools: circleci/browser-tools@1.4.1
+  cypress: cypress-io/cypress@3.1.2
 jobs:
   install-deps:
     <<: *defaults
@@ -34,26 +37,15 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Building app
-          command: npm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - __sapper__
-            - static/css
-
-  export:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: .
       - restore_cache:
           keys:
             - v1-api-cache
       - run:
-          name: Exporting app
-          command: npm run export -- --build false
+          name: Building app
+          command: npm run build
+      - run:
+          name: Export app
+          command: npm run export -- --legacy --no-build
       - save_cache:
           key: v1-api-cache
           paths:
@@ -61,6 +53,8 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
+            - __sapper__
+            - static/css
             - .
 
   lint:
@@ -71,6 +65,10 @@ jobs:
       - run:
           name: Lint sources
           command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - run:
+          name: Check formatting
+          command: npm run format -- --check
+          when: always
       - store_test_results:
           path: ~/reports
           when: always
@@ -79,12 +77,7 @@ jobs:
           when: always
 
   test:
-    <<: *defaults
-    docker:
-      - image: cypress/base:10
-        environment:
-          # Enable colors in the output
-          TERM: xterm
+    executor: cypress/default
     working_directory: /home/circleci/project
     steps:
       - attach_workspace:
@@ -92,14 +85,10 @@ jobs:
       - restore_cache:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run:
-          name: Put cypress binary in place
-          command: |
-            mkdir -p /root/.cache
-            mv /home/circleci/.cache/Cypress ~/.cache/Cypress
-      - run:
-          name: Running tests
-          command: npm run test:ci
+            - v2-npm-deps
+      - cypress/run-tests:
+          cypress-command: npm run cy:run-junit
+          start-command: npm run start:export
       - store_test_results:
           path: test/report
       - store_artifacts:
@@ -132,8 +121,9 @@ jobs:
   lighthouse:
     <<: *defaults
     docker:
-      - image: circleci/node:14-browsers
+      - image: cimg/node:18.13-browsers
     steps:
+      - browser-tools/install-chrome
       - checkout
       - run:
           <<: *git-login
@@ -157,7 +147,7 @@ jobs:
               git commit -m "docs(readme): Update lighthouse badges [ci skip]
 
               $(git log -1 --pretty=%B)"
-              git push origin master
+              git push origin $CIRCLE_BRANCH
             fi
 
 workflows:
@@ -172,16 +162,13 @@ workflows:
       - test:
           requires:
             - build
-      - export:
-          requires:
-            - build
       - lint:
           requires:
             - install-deps
       - deploy:
           requires:
             - test
-            - export
+            - build
             - lint
           filters:
             branches:
@@ -193,7 +180,7 @@ workflows:
   update-content:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: '0 0 * * *'
           filters:
             branches:
               only:
@@ -203,9 +190,10 @@ workflows:
       - build:
           requires:
             - install-deps
-      - export:
+      - test:
           requires:
             - build
       - deploy:
           requires:
-            - export
+            - build
+            - test
