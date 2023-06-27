@@ -25,9 +25,10 @@ const svelteOptions = {
 
 if (dev) {
   try {
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line global-require,import/no-unresolved
     require('dotenv').config();
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('> No .env file found');
   }
 }
