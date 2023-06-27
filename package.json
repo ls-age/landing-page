@@ -30,9 +30,9 @@
     "sass:base": "sass src/styles/base.scss static/css/base.css --load-path node_modules --quiet-deps",
     "sass:debug": "npm run -s sass:base -- --embed-sources",
     "start": "node __sapper__/build",
-    "start:export": "sirv __sapper__/export",
-    "test": "PORT=3003 run-p --race dev cy:run",
-    "test:ci": "PORT=3003 run-p --race start:export cy:run-junit",
+    "start:export": "PORT=3003 sirv __sapper__/export",
+    "test": "run-p --race dev cy:run",
+    "test:ci": "run-p --race start:export cy:run-junit",
     "update-assets": "rm -rf static/images && /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool export layers design/ls-age.sketch --output=."
   },
   "dependencies": {
