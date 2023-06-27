@@ -24,22 +24,20 @@ const svelteOptions = {
   },
 };
 
-if (dev) {
-  try {
-    // eslint-disable-next-line global-require,import/no-unresolved
-    const result = require('dotenv').config();
+try {
+  // eslint-disable-next-line global-require,import/no-unresolved
+  const result = require('dotenv').config();
 
-    if (result.error) throw result.error;
-    // eslint-disable-next-line no-console
-    console.log(`> Loaded from .env file:
+  if (result.error) throw result.error;
+  // eslint-disable-next-line no-console
+  console.log(`> Loaded from .env file:
   ${Object.entries(result.parsed)
     .map(([key, value]) => `${key}: ${value.slice(0, 10)}...`)
     .join('\n  ')}`);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(`> No .env file processed:
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.log(`> No .env file processed:
   ${error.message}`);
-  }
 }
 
 export default {
