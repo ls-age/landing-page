@@ -1,4 +1,4 @@
-<PageMeta title='About' description="Hey there, I'm Lukas, a software developer from Vienna / Austria." />
+<PageMeta title='About' description="{header}, {description}" />
 
 <section class="hero is-primary is-fullheight-with-navbar logo-hero">
   <div class="hero-body">
@@ -16,12 +16,8 @@
       </figure>
 
       <div class="text">
-        <h1 class="title">
-          Hey there!
-        </h1>
-        <p class="subtitle">
-          I'm Lukas, a software developer from Vienna / Austria.
-        </p>
+        <h1 class="title">{header}!</h1>
+        <p class="subtitle">{description}</p>
         <div class="content">
           <blockquote>
             <p>I started to teach myself how to program during high school and have not stopped learning new, cutting-edge technologies since then.</p>
@@ -157,5 +153,11 @@
     components: {
       PageMeta: '../components/utils/PageMeta.html',
     },
+    data() {
+      return {
+        header: 'Hey there',
+        description:  'I\'m Lukas, a software developer from Austria, living in Switzerland.',
+      }
+    }
   };
 </script>
