@@ -1,2 +1,6 @@
 @import './theme.scss';
 @import 'bulma/bulma.sass';
+
+a:hover {
+  color: inherit;
+}

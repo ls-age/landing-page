@@ -1,4 +1,5 @@
 @charset "utf-8";
+
 @import 'bulma/sass/utilities/initial-variables.sass';
 @import 'bulma/sass/utilities/functions.sass';
 
@@ -6,12 +7,25 @@ $brand: #ff2d55;
 $primary: $brand;
 $link: rgb(0, 122, 255);
 
-$box-shadow: 0 0 0 1px rgba($black, 0.1);
-$body-background-color: $white-bis;
-$modal-background-background-color: rgba($grey-light, 0.5);
+// Dark mode
+$scheme-main: $black-bis;
+$scheme-main-bis: $black-bis;
+$scheme-main-ter: $black-ter;
+$scheme-invert: $white;
+$scheme-invert-bis: $white-bis;
+$scheme-invert-ter: $white-ter;
+$background: $scheme-main-ter;
+
+$text: $white;
+$text-light: $white;
+$text-strong: $scheme-invert-ter;
 
 @import 'bulma/sass/utilities/derived-variables';
 @import 'bulma/sass/utilities/_all.sass';
+
+$box-shadow: 0 0 0 1px $scheme-main-bis;
+$box-background-color: $dark;
+$modal-background-background-color: rgba($scheme-main, 0.5);
 
 $navbar-breakpoint: 400px;
 $navbar-fixed-z: 30;
