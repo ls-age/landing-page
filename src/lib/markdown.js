@@ -56,7 +56,14 @@ export class TocRenderer extends marked.Renderer {
 
 marked.setOptions({
   highlight(code, lang) {
-    return (lang ? highlight(lang, code) : { value: code }).value;
+    if (!lang) return code;
+
+    try {
+      return highlight(lang, code).value;
+    } catch (e) {
+      console.log(`Unable to highlight code block: ${code.split('\n')[0].slice(0, 30)} (${lang})`);
+      return code;
+    }
   },
 });
 
