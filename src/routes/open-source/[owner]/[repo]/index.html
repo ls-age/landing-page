@@ -1,6 +1,6 @@
 <PageMeta title={nameWithOwner} :description />
 
-<section class="hero is-medium is-light">
+<section class="hero is-medium is-dark">
   <div class="hero-body">
     <div class="container">
       <h1 class="title">{nameWithOwner}</h1>
@@ -15,7 +15,7 @@
         <div class="control">
           <div class="tags">
             <div class="tags has-addons">
-              <span class="tag is-dark">Stars</span>
+              <span class="tag is-black">Stars</span>
               <span class="tag is-warning">{stargazers.totalCount}</span>
             </div>
           </div>
@@ -25,7 +25,7 @@
           <div class="control">
             <div class="tags">
               <div class="tags has-addons">
-                <span class="tag is-dark">Current release</span>
+                <span class="tag is-black">Current release</span>
                 <span class="tag is-info">{releases.nodes[0].tagName}</span>
               </div>
             </div>
@@ -33,14 +33,14 @@
         {/if}
       </div>
 
-      <a href={url} class="button is-dark is-pulled-right">View on GitHub</a>
+      <a href={url} class="button is-black is-pulled-right">View on GitHub</a>
     </div>
   </div>
 </section>
 
 <NavbarShadow fixed />
 
-<section class="section has-background-white">
+<section class="section">
   <div class="container">
     <div class="columns under-tabbar">
       <div class="column">
