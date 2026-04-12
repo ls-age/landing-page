@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'main' && !contains(github.ref, 'release/') }}
+
+jobs:
+  build:
+    steps:
+      - id: checkout
+        name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          lfs: true
+      - id: setup-bun
+        name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - id: install
+        name: Install dependencies
+        run: bun install
+      - id: checks
+        name: Code Quality Checks
+        run: bun turbo check lint test build --continue
+      - id: ensure-clean
+        name: Ensure there are no uncommitted changes
+        run: git diff --exit-code || (echo "There are uncommitted changes!" && exit 1)
+    name: Code Quality
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      DO_NOT_TRACK: '1'
