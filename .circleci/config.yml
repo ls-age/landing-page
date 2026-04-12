@@ -42,10 +42,10 @@ jobs:
             - v1-api-cache
       - run:
           name: Building app
-          command: npm run build
+          command: bun run build
       - run:
           name: Export app
-          command: npm run export -- --legacy --no-build
+          command: bun run export -- --legacy --no-build
       - save_cache:
           key: v1-api-cache
           paths:
@@ -64,10 +64,10 @@ jobs:
           at: .
       - run:
           name: Lint sources
-          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+          command: bun run lint -- --format junit --output-file ~/reports/eslint.xml
       - run:
           name: Check formatting
-          command: npm run format -- --check
+          command: bun run format -- --check
           when: always
       - store_test_results:
           path: ~/reports
@@ -87,8 +87,8 @@ jobs:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
             - v2-npm-deps
       - cypress/run-tests:
-          cypress-command: npm run cy:run-junit
-          start-command: npm run start:export
+          cypress-command: bun run cy:run-junit
+          start-command: bun run start:export
       - store_test_results:
           path: test/report
       - store_artifacts:

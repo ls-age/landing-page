@@ -3,24 +3,24 @@
   "version": "0.0.0",
   "private": true,
   "description": "ls-age.com",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ls-age/landing-page.git"
-  },
-  "author": "Lukas Hechenberger <npm@ls-age.com>",
   "homepage": "https://github.com/ls-age/landing-page#readme",
   "bugs": {
     "url": "https://github.com/ls-age/landing-page/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ls-age/landing-page.git"
+  },
+  "license": "MIT",
+  "author": "Lukas Hechenberger <npm@ls-age.com>",
   "scripts": {
     "build": "run-p build:*",
     "build:sapper": "sapper build --legacy",
-    "build:sass": "npm run -s sass:base -- --style compressed",
+    "build:sass": "bun run sass:base -- --style compressed",
     "clear-cache": "rm -rf data/cache",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "cy:run-junit": "npm run cy:run -- --reporter junit --reporter-options 'mochaFile=test/report/report.xml'",
+    "cy:run-junit": "bun run cy:run -- --reporter junit --reporter-options 'mochaFile=test/report/report.xml'",
     "dev": "run-p dev:*",
     "dev:sapper": "sapper dev",
     "dev:sass": "run-s sass:debug \"sass:debug -- --watch\"",
@@ -28,7 +28,7 @@
     "format": "prettier .",
     "lint": "eslint . --ext .js,.html --ignore-path .gitignore",
     "sass:base": "sass src/styles/base.scss static/css/base.css --load-path node_modules --quiet-deps",
-    "sass:debug": "npm run -s sass:base -- --embed-sources",
+    "sass:debug": "bun run sass:base -- --embed-sources",
     "start": "node __sapper__/build",
     "start:export": "PORT=3003 sirv __sapper__/export",
     "test": "CYPRESS_BASE_URL=http://localhost:3000 run-p --race dev cy:run",
@@ -84,5 +84,6 @@
     "extends": [
       "@ls-age:automergeDev"
     ]
-  }
+  },
+  "packageManager": "bun@1.3.11"
 }
