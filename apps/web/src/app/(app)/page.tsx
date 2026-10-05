@@ -87,14 +87,18 @@ export default async function HomePage() {
       <JsonLd thing={website} />
       <section className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:py-24 md:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-6">
-          <Image
-            src="/lukas-hechenberger.png"
-            alt={site.author.name}
-            width={256}
-            height={256}
-            priority
-            className="ring-background size-32 rounded-full shadow-md ring-4 sm:size-40"
-          />
+          <figure className="flex w-fit flex-col items-center gap-3">
+            <Image
+              src="/lukas-hechenberger.png"
+              alt={site.author.name}
+              width={768}
+              height={768}
+              sizes="(min-width: 640px) 256px, 192px"
+              priority
+              className="ring-background size-48 rounded-full shadow-md ring-4 sm:size-64"
+            />
+            <figcaption className="text-muted-foreground text-sm">{site.author.name}</figcaption>
+          </figure>
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
             I build web apps, end to end.
           </h1>
