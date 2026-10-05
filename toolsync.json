@@ -17,6 +17,9 @@
       "//#check:knip": {},
       "check": {
         "dependsOn": ["//#check:knip"]
+      },
+      "build": {
+        "env": ["GITHUB_TOKEN"]
       }
     }
   },

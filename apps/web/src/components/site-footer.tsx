@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { site } from '@/lib/site';
 
 export function SiteFooter() {
@@ -18,6 +19,10 @@ export function SiteFooter() {
           .
         </p>
         <p>
+          <Link className="hover:text-foreground underline" href="/open-source">
+            Open Source
+          </Link>{' '}
+          &middot;{' '}
           <a className="hover:text-foreground underline" href="https://hechenbros.com">
             Hechenbros
           </a>{' '}

@@ -8,8 +8,10 @@
         "check:types"
       ]
     },
-    "//#check:format": {},
     "build": {
+      "env": [
+        "GITHUB_TOKEN"
+      ],
       "dependsOn": [
         "^build"
       ],
@@ -23,6 +25,7 @@
         "out/**"
       ]
     },
+    "//#check:format": {},
     "dev": {
       "cache": false,
       "persistent": true
