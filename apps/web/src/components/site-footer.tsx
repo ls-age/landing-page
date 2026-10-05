@@ -19,6 +19,10 @@ export function SiteFooter() {
           .
         </p>
         <p>
+          <Link className="hover:text-foreground underline" href="/blog">
+            Blog
+          </Link>{' '}
+          &middot;{' '}
           <Link className="hover:text-foreground underline" href="/open-source">
             Open Source
           </Link>{' '}

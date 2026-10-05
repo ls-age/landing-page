@@ -128,3 +128,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Code highlighted with Shiki's dual themes (`defaultColor: false`), on Typeset's code background */
+.shiki span {
+  color: var(--shiki-light);
+}
+.dark .shiki span {
+  color: var(--shiki-dark);
+}

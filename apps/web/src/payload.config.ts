@@ -1,10 +1,18 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres';
+import {
+  BlocksFeature,
+  CodeBlock,
+  HeadingFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical';
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
+import { codeLanguages } from './lib/code-languages';
 import { Media } from './payload/collections/media';
+import { Posts } from './payload/collections/posts';
 import { Users } from './payload/collections/users';
 
 const filename = fileURLToPath(import.meta.url);
@@ -17,8 +25,25 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    livePreview: {
+      breakpoints: [
+        { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+      ],
+    },
   },
-  collections: [Users, Media],
+  collections: [Posts, Media, Users],
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      // The page title is the only h1
+      ...defaultFeatures.filter((feature) => feature.key !== 'heading'),
+      HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+      // Highlighted with Shiki when rendered (`components/code-block.tsx`)
+      BlocksFeature({
+        blocks: [CodeBlock({ languages: codeLanguages, defaultLanguage: 'typescript' })],
+      }),
+    ],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, '__generated__/payload-types.ts'),

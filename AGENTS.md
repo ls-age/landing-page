@@ -33,6 +33,8 @@ Run Payload commands from `apps/web` via the `x-payload` script (`bun run x-payl
 - Schema push is disabled (`push: false`), also locally: every database runs the migrations (`bun run migration:deploy`; deployments run it before the build, see `apps/web/vercel.json`). Create migrations with the `add-migration` skill and commit the `.ts`, `.json` and `index.ts` together.
 - Payload's default access is "any logged-in user". Define every operation of every collection and global explicitly with the helpers in `src/payload/access.ts` (`src/payload/access.test.ts` fails otherwise).
 - Public pages are static and read Payload through the Local API; collections revalidate the whole site after changes (`src/payload/revalidate.ts`).
+- Blog posts (`posts`) have drafts; the site shows published posts once their `publishedAt` has come (`src/lib/posts.ts`, the same rule as their read access). The live preview goes through `/api/draft` (admins only). Rich text renders with `src/components/rich-text.tsx` inside shadcn's Typeset styles; code blocks (Payload's `CodeBlock`, languages in `src/lib/code-languages.ts`) are highlighted on the server with Shiki.
+- Keep the slug of a published post (`titleBasedSlug` in `src/payload/helpers.ts` generates it once from the title).
 
 ## Next.js docs
 

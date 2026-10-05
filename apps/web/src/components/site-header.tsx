@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { site } from '@/lib/site';
 
 const links = [
+  { href: '/blog', label: 'Blog' },
   { href: '/open-source', label: 'Open Source' },
   { href: 'https://hechenbros.com', label: 'Hechenbros' },
 ];
