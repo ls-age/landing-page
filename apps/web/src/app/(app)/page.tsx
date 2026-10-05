@@ -93,9 +93,9 @@ export default async function HomePage() {
               alt={site.author.name}
               width={768}
               height={768}
-              sizes="(min-width: 640px) 256px, 192px"
+              sizes="(min-width: 768px) 256px, 128px"
               priority
-              className="ring-background size-48 rounded-full shadow-md ring-4 sm:size-64"
+              className="ring-background size-32 rounded-full shadow-md ring-4 md:size-64"
             />
             <figcaption className="text-muted-foreground text-sm">{site.author.name}</figcaption>
           </figure>
