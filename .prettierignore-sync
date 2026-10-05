@@ -1,0 +1,16 @@
+[relative]
+.gitignore-sync
+
+[inline]
+# Generated files
+/bun.lock
+/turbo.json
+/.changeset/*.md
+/.agents/skills
+/.claude/skills
+/.claude/worktrees
+/.claude/settings.json
+/skills-lock.json
+
+/apps/web/src/app/(payload)/admin/importMap.js
+/apps/web/src/migrations

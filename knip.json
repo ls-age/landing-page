@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "ignoreDependencies": [
+    "@toolsync/cli",
+    "@toolsync/builtin",
+    "@workspace/toolsync-plugin",
+    "@tailwindcss/postcss"
+  ]
+}
