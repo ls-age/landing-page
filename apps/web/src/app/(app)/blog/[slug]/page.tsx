@@ -1,10 +1,12 @@
+import { Card, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { blogPosting, JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
 import { isPreviewingDrafts } from '@/lib/admin';
-import { formatDate, getPost, getPosts } from '@/lib/posts';
+import { formatDate, getAdjacentPosts, getPost, getPosts } from '@/lib/posts';
 import { site } from '@/lib/site';
 import { RefreshRouteOnSave } from '@/payload/live-preview';
 
@@ -43,6 +45,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
   const post = await getPost(slug, { draft });
   if (!post) notFound();
 
+  const { previous, next } = await getAdjacentPosts(slug);
   const image = typeof post.featuredImage === 'object' ? post.featuredImage : undefined;
 
   return (
@@ -79,6 +82,38 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
         />
       )}
       <RichText data={post.content} />
+      {(previous || next) && (
+        <footer className="border-t pt-8">
+          <nav aria-label="More posts" className="grid gap-4 sm:grid-cols-2">
+            {previous && <AdjacentPost post={previous} label="Previous" />}
+            {next && (
+              <AdjacentPost post={next} label="Next" className="sm:col-start-2 sm:text-right" />
+            )}
+          </nav>
+        </footer>
+      )}
     </article>
+  );
+}
+
+function AdjacentPost({
+  post,
+  label,
+  className,
+}: {
+  post: Awaited<ReturnType<typeof getPosts>>[number];
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Link href={`/blog/${post.slug}`} rel={label.toLowerCase()} className={className}>
+      <Card className="hover:bg-muted/50 h-full transition-colors">
+        <CardHeader>
+          <p className="text-muted-foreground text-sm">{label}</p>
+          <CardTitle>{post.title}</CardTitle>
+          <CardDescription>{post.description}</CardDescription>
+        </CardHeader>
+      </Card>
+    </Link>
   );
 }
