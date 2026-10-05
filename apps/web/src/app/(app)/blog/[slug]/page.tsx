@@ -1,4 +1,3 @@
-import { Card, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -49,7 +48,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
   const image = typeof post.featuredImage === 'object' ? post.featuredImage : undefined;
 
   return (
-    <article className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16">
+    <article className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-16">
       {draft && <RefreshRouteOnSave />}
       <JsonLd
         thing={blogPosting({
@@ -107,13 +106,10 @@ function AdjacentPost({
 }) {
   return (
     <Link href={`/blog/${post.slug}`} rel={label.toLowerCase()} className={className}>
-      <Card className="hover:bg-muted/50 h-full transition-colors">
-        <CardHeader>
-          <p className="text-muted-foreground text-sm">{label}</p>
-          <CardTitle>{post.title}</CardTitle>
-          <CardDescription>{post.description}</CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="hover:bg-muted/40 flex flex-col gap-1 rounded-lg border p-4">
+        <p className="text-muted-foreground text-sm">{label}</p>
+        <p className="font-semibold">{post.title}</p>
+      </div>
     </Link>
   );
 }
