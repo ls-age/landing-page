@@ -112,7 +112,7 @@ export default async function HomePage() {
         <figure className="mx-auto flex w-64 flex-col items-center gap-3 sm:w-72">
           {/* Recolored to the theme's primary color, so the card switches with the theme */}
           <Image
-            src="/qrcard-lukas-hechenberger.webp"
+            src="/qrcard-lukas-hechenberger-light.webp"
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
