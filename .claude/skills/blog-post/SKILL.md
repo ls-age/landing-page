@@ -3,7 +3,7 @@ name: blog-post
 description: Plan and draft a blog post for lukashechenberger.com (a problem Lukas solved, usually with Next.js and Payload) and save it as a draft through the savePostDraft MCP tool. Use for anything about writing, outlining or revising blog posts.
 ---
 
-Posts are short dev write-ups (about 600-900 words) for developers using Next.js and Payload: one concrete problem, why it happens, the fix with a small code excerpt, and what to take away. English, first person, plain and specific. The list of planned topics is in `docs/blog-plan.md`.
+Posts are short dev write-ups (about 600-900 words) for developers using Next.js and Payload: one concrete problem, why it happens, the fix with a small code excerpt, and what to take away. English, first person, plain and specific. Topics come from Lukas; planned topics aren't kept in this public repo.
 
 ## Workflow
 

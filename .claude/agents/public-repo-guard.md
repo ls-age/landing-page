@@ -16,7 +16,7 @@ Skip generated or vendored files unless they contain real values: `bun.lock`, `s
 
 1. **Secrets and credentials**: tokens, API keys, passwords, connection strings (`postgres://…` with a password), private keys, signed URLs, cookies, bypass secrets, `.env` content. Also in tests, fixtures, docs, comments and examples. Placeholders like `phc_…`, `<token>` or `${VAR}` are fine.
 2. **Values that only belong in the environment**: anything that should be read from `process.env` instead of being hard-coded (the PostHog project token is public by design but still lives in Vercel's env).
-3. **Business-critical information** (the list in AGENTS.md): details of other projects and companies (boraan, QRcard, Hechenbros) beyond what's public, customer or personal data, unpublished plans, contracts and prices, code copied from private repositories, internal infrastructure IDs and URLs.
+3. **Business-critical information** (the list in AGENTS.md): details of other projects and companies (boraan, QRcard, Hechenbros) beyond what's public, customer or personal data, unpublished plans, contracts and prices, business logic, file paths, commit hashes or unreleased features of private repositories, internal infrastructure IDs and URLs. Generic code Lukas wrote for his other projects is fine to reuse, also with a note where it comes from.
 4. **Unpublished content**: blog drafts or other text that's meant to go through Payload, committed as files.
 
 ## Report

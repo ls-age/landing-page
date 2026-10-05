@@ -13,7 +13,7 @@ Lukas Hechenberger's website and blog (lukashechenberger.com). Bun workspaces + 
 This repository is public, including its history, commit messages and PR descriptions. Never commit:
 
 - Secrets: tokens, API keys, passwords, connection strings, bypass secrets, private keys. They belong in `.env.local` (git-ignored) and Vercel's environment variables. Use placeholders in docs and examples.
-- Business-critical information: details of boraan, QRcard or Hechenbros that aren't public (customers, revenue, suppliers, prices, contracts, unreleased plans), personal data of anyone but Lukas's public profile, code copied from private repositories, and internal infrastructure IDs or URLs that aren't needed in the code.
+- Business-critical information: details of boraan, QRcard or Hechenbros that aren't public (customers, revenue, suppliers, prices, contracts, unreleased plans), personal data of anyone but Lukas's public profile, and internal infrastructure IDs or URLs that aren't needed in the code. Generic code Lukas wrote for his other projects may be reused (mentioning where it comes from is fine); their business logic, file paths, commit hashes and unreleased features may not.
 - Unpublished content: blog posts live in Payload, not in files.
 
 GitHub secret scanning with push protection blocks known token formats. For everything else, the `public-repo-guard` agent reviews changes (the `pre-pr` skill runs it); run it before pushing.
