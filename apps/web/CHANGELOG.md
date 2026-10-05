@@ -1,5 +1,11 @@
 # @ls-age/web
 
+## 1.1.1
+
+### Patch Changes
+
+- [#78](https://github.com/ls-age/landing-page/pull/78) [`7003bef`](https://github.com/ls-age/landing-page/commit/7003bef155e8ab103b441220fc40cfbaf197ead9) - Point the blog posts' structured data at a generated image that exists, instead of the un-hashed `opengraph-image` URL that returns 404 in production, and check every deployment for broken links
+
 ## 1.1.0
 
 ### Minor Changes
