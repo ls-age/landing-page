@@ -1,0 +1,45 @@
+{
+  "@toolsync/builtin/github-actions": {},
+  "@toolsync/builtin/ignore-sync": {},
+  "@toolsync/builtin/package-meta": {},
+  "@toolsync/builtin/package-readme": {},
+  "@toolsync/builtin/bun": {},
+  "@toolsync/builtin/prettier": {
+    "version": "^3.8.1",
+    "settings": {
+      "printWidth": 100,
+      "singleQuote": true,
+      "plugins": ["prettier-plugin-packagejson", "prettier-plugin-tailwindcss"]
+    }
+  },
+  "@toolsync/builtin/turbo": {
+    "tasks": {
+      "//#check:knip": {},
+      "check": {
+        "dependsOn": ["//#check:knip"]
+      }
+    }
+  },
+  "@toolsync/builtin/vscode": {
+    "extensions": {
+      "recommendations": ["dbaeumer.vscode-eslint"]
+    },
+    "settings": {
+      "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+      },
+      "eslint.workingDirectories": ["apps/*", "packages/*"],
+      "json.schemaDownload.trustedDomains": {
+        "https://turbo.build": true,
+        "https://unpkg.com": true,
+        "https://ui.shadcn.com": true
+      },
+      "js/ts.tsdk.path": "node_modules/typescript/lib",
+      "js/ts.tsserver.web.projectWideIntellisense.enabled": false
+    }
+  },
+  "@workspace/toolsync-plugin": {}
+}

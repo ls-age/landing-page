@@ -1,0 +1,29 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": { "source": "github", "repo": "anthropics/claude-plugins-official" }
+    },
+    "neon": {
+      "source": { "source": "github", "repo": "neondatabase/agent-skills" }
+    }
+  },
+  "enabledPlugins": {
+    "vercel@claude-plugins-official": true,
+    "posthog@claude-plugins-official": true,
+    "neon-postgres@neon": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-generated.sh" }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-on-edit.sh" }]
+      }
+    ]
+  }
+}
