@@ -87,6 +87,14 @@ export default async function HomePage() {
       <JsonLd thing={website} />
       <section className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:py-24 md:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-6">
+          <Image
+            src="/lukas-hechenberger.png"
+            alt={site.author.name}
+            width={256}
+            height={256}
+            priority
+            className="ring-background size-24 rounded-full shadow-md ring-4"
+          />
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
             I build web apps, end to end.
           </h1>
@@ -96,19 +104,28 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <ContactDialog label="Get in touch" size="lg" />
-            <Link href="/blog" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+            <Link href="/blog" className={buttonVariants({ variant: 'secondary', size: 'lg' })}>
               Read the blog
             </Link>
           </div>
         </div>
         <figure className="mx-auto flex w-64 flex-col items-center gap-3 sm:w-72">
+          {/* Recolored to the theme's primary color, so the card switches with the theme */}
           <Image
             src="/qrcard-lukas-hechenberger.webp"
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
             priority
-            className="w-full rotate-2 rounded-2xl shadow-xl"
+            className="w-full rotate-2 rounded-2xl shadow-xl dark:hidden"
+          />
+          <Image
+            src="/qrcard-lukas-hechenberger-dark.webp"
+            alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
+            width={752}
+            height={1233}
+            priority
+            className="hidden w-full rotate-2 rounded-2xl shadow-xl dark:block"
           />
           <figcaption className="text-muted-foreground text-sm">
             {site.author.name} on{' '}
