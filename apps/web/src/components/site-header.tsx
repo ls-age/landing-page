@@ -4,7 +4,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { site } from '@/lib/site';
 
 const links = [
-  { href: '/', label: 'About' },
   { href: '/open-source', label: 'Open Source' },
   { href: 'https://hechenbros.com', label: 'Hechenbros' },
 ];
@@ -16,7 +15,7 @@ export function SiteHeader() {
         <Link href="/" className="whitespace-nowrap font-semibold tracking-tight">
           {site.name}
         </Link>
-        {/* Hidden on phones: the name links to the About page, the footer to the others */}
+        {/* Hidden on phones, where the footer links to the same pages */}
         <nav className="text-muted-foreground hidden items-center gap-4 text-sm sm:flex">
           {links.map(({ href, label }) => (
             <Link key={href} href={href} className="hover:text-foreground transition-colors">
