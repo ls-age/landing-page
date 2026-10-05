@@ -93,7 +93,7 @@ export default async function HomePage() {
             width={256}
             height={256}
             priority
-            className="ring-background size-24 rounded-full shadow-md ring-4"
+            className="ring-background size-32 rounded-full shadow-md ring-4 sm:size-40"
           />
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
             I build web apps, end to end.
