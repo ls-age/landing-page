@@ -100,7 +100,7 @@ export default async function HomePage() {
             <figcaption className="text-muted-foreground text-sm">{site.author.name}</figcaption>
           </figure>
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            I build web apps, end to end.
+            I build apps, end to end.
           </h1>
           <p className="text-muted-foreground text-pretty text-lg">
             I&apos;m Lukas, a software developer. I take products from the first database schema to
