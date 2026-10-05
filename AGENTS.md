@@ -8,6 +8,16 @@ Lukas Hechenberger's website and blog (lukashechenberger.com). Bun workspaces + 
 - `packages/ui` (`@workspace/ui`): shared shadcn components (Base UI, style `base-luma`, Rose theme). Add components from `apps/web` with `bunx shadcn@latest add <component>`; they land in `packages/ui`. Keep them as generated: style pages with Tailwind classes, don't restyle the components.
 - `packages/eslint-config`, `packages/typescript-config`, `packages/toolsync-plugin`: shared tooling config, kept in sync with the boraan and QRcard repos.
 
+## Public repository
+
+This repository is public, including its history, commit messages and PR descriptions. Never commit:
+
+- Secrets: tokens, API keys, passwords, connection strings, bypass secrets, private keys. They belong in `.env.local` (git-ignored) and Vercel's environment variables. Use placeholders in docs and examples.
+- Business-critical information: details of boraan, QRcard or Hechenbros that aren't public (customers, revenue, suppliers, prices, contracts, unreleased plans), personal data of anyone but Lukas's public profile, code copied from private repositories, and internal infrastructure IDs or URLs that aren't needed in the code.
+- Unpublished content: blog posts live in Payload, not in files.
+
+GitHub secret scanning with push protection blocks known token formats. For everything else, the `public-repo-guard` agent reviews changes (the `pre-pr` skill runs it); run it before pushing.
+
 ## Generated files
 
 `bun install` runs `prepare` (toolsync + ignore-sync), which writes `turbo.json`, `.prettierrc.json`, `.prettierignore`, `.gitignore`, `.vscode/*`, `.github/workflows/ci.yml`, the package README headers and `.mcp.json`. Change `toolsync.json`, `packages/toolsync-plugin`, `.gitignore-sync` or `.prettierignore-sync` instead and run `bun run prepare`.
