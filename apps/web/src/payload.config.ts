@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres';
+import { seoPlugin } from '@payloadcms/plugin-seo';
 import {
   BlocksFeature,
   CodeBlock,
@@ -11,9 +12,11 @@ import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { codeLanguages } from './lib/code-languages';
+import { site } from './lib/site';
 import { Media } from './payload/collections/media';
 import { Posts } from './payload/collections/posts';
 import { Users } from './payload/collections/users';
+import { collectionPath } from './payload/helpers';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -60,6 +63,17 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
+    seoPlugin({
+      collections: ['posts'],
+      uploadsCollection: 'media',
+      tabbedUI: true,
+      // The page title gets the site name appended (` · Lukas Hechenberger`)
+      generateTitle: ({ doc }) => doc.title,
+      generateDescription: ({ doc }) => doc.description,
+      generateImage: ({ doc }) => doc.featuredImage,
+      generateURL: ({ collectionSlug, doc }) =>
+        new URL((collectionSlug && collectionPath(collectionSlug, doc)) || '/', site.url).href,
+    }),
     vercelBlobStorage({
       // Local development stores uploads on disk (`apps/web/media`); `migration:create` passes a
       // placeholder token so the plugin's columns end up in the migrations

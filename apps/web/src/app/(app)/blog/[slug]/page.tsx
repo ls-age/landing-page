@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { blogPosting, JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
 import { isPreviewingDrafts } from '@/lib/admin';
 import { formatDate, getPost, getPosts } from '@/lib/posts';
@@ -20,7 +21,20 @@ export async function generateMetadata({ params }: PageProps<'/blog/[slug]'>): P
   const post = await getPost(slug, { draft: await isPreviewingDrafts() });
   if (!post) return {};
 
-  return { title: post.title, description: post.description };
+  const image = typeof post.meta?.image === 'object' ? post.meta.image?.url : undefined;
+  return {
+    title: post.meta?.title || post.title,
+    description: post.meta?.description || post.description,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: 'article',
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
+      authors: [site.author.name],
+      // Without an image of its own, the post's generated `opengraph-image` is used
+      ...(image ? { images: [image] } : {}),
+    },
+  };
 }
 
 export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
@@ -34,6 +48,16 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16">
       {draft && <RefreshRouteOnSave />}
+      <JsonLd
+        thing={blogPosting({
+          title: post.title,
+          description: post.description,
+          slug: post.slug ?? slug,
+          publishedAt: post.publishedAt,
+          updatedAt: post.updatedAt,
+          image: image?.url ?? undefined,
+        })}
+      />
       <header className="flex flex-col gap-3">
         <p className="text-muted-foreground text-sm">
           <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time> ·{' '}

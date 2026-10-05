@@ -20,7 +20,7 @@ export async function getPosts() {
     depth: 0,
     limit: 0,
     pagination: false,
-    select: { title: true, slug: true, description: true, publishedAt: true },
+    select: { title: true, slug: true, description: true, publishedAt: true, updatedAt: true },
   });
 
   return docs;

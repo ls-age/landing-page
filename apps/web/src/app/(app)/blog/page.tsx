@@ -9,6 +9,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Notes on things I built and problems I solved, mostly with Next.js and Payload.',
+  alternates: { canonical: '/blog' },
 };
 
 export default async function BlogPage() {

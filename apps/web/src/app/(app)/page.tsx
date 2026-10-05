@@ -8,6 +8,7 @@ import {
 } from '@workspace/ui/components/card';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { JsonLd, website } from '@/components/json-ld';
 import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ const skills = [
 export default function AboutPage() {
   return (
     <>
+      <JsonLd thing={website} />
       <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center sm:py-24">
         <Image
           src="/lukas-hechenberger.png"

@@ -22,6 +22,7 @@
     "@payloadcms/db-vercel-postgres": "3.90.2",
     "@payloadcms/live-preview-react": "3.90.2",
     "@payloadcms/next": "3.90.2",
+    "@payloadcms/plugin-seo": "3.90.2",
     "@payloadcms/richtext-lexical": "3.90.2",
     "@payloadcms/storage-vercel-blob": "3.90.2",
     "@workspace/ui": "workspace:*",
@@ -46,6 +47,7 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9.39.4",
+    "schema-dts": "^2.1.0",
     "typescript": "^5.9.3"
   },
   "engines": {

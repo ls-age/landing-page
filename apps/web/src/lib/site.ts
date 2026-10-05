@@ -10,3 +10,6 @@ export const site = {
     github: 'https://github.com/LukasHechenberger',
   },
 } as const;
+
+/** The absolute URL of a path on the (production) site */
+export const absoluteUrl = (path: string) => new URL(path, site.url).href;

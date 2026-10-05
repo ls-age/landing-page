@@ -21,6 +21,9 @@ export const siteMetadata: Metadata = {
   description: site.description,
   authors: [{ name: site.author.name, url: site.author.github }],
   creator: site.author.name,
+  alternates: {
+    types: { 'application/rss+xml': [{ url: '/blog/feed.xml', title: `${site.name} · Blog` }] },
+  },
 };
 
 export const siteViewport: Viewport = {
