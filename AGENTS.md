@@ -36,6 +36,10 @@ Run Payload commands from `apps/web` via the `x-payload` script (`bun run x-payl
 - Blog posts (`posts`) have drafts; the site shows published posts once their `publishedAt` has come (`src/lib/posts.ts`, the same rule as their read access). The live preview goes through `/api/draft` (admins only). Rich text renders with `src/components/rich-text.tsx` inside shadcn's Typeset styles; code blocks (Payload's `CodeBlock`, languages in `src/lib/code-languages.ts`) are highlighted on the server with Shiki.
 - Keep the slug of a published post (`titleBasedSlug` in `src/payload/helpers.ts` generates it once from the title).
 
+## Analytics
+
+PostHog (EU, the `lukashechenberger` organization) runs cookieless (`cookieless_mode: 'always'`, so there's no consent banner) and is loaded lazily in `src/components/analytics.tsx`, through the `/ingest` proxy in `next.config.ts`. `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` is only set for production, so previews and local development don't send events.
+
 ## Next.js docs
 
 `apps/web` runs Next.js 16.3, which may differ from training data in APIs, conventions and file structure. Before writing code in `apps/web`, check the version-matched docs at `apps/web/node_modules/next/dist/docs/`.

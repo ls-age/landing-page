@@ -20,7 +20,8 @@
         "GITHUB_TOKEN",
         "PAYLOAD_SECRET",
         "VERCEL_ENV"
-      ]
+      ],
+      "env": ["NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN"]
     }
   }
 }

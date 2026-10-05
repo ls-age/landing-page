@@ -2,6 +2,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { Analytics } from '@/components/analytics';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -46,6 +47,7 @@ export function SiteDocument({ children }: { children: ReactNode }) {
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

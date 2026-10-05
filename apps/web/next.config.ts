@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
     // 404 page (`src/app/global-not-found.tsx`)
     globalNotFound: true,
   },
+  // PostHog through the site's own origin (`components/analytics.tsx`)
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://eu-assets.i.posthog.com/static/:path*',
+      },
+      { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' },
+    ];
+  },
+  // Required for PostHog's API requests with trailing slashes
+  skipTrailingSlashRedirect: true,
 };
 
 export default withPayload(nextConfig, {
