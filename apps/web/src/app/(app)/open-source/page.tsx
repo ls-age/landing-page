@@ -85,12 +85,9 @@ export default async function OpenSourcePage() {
           I use a lot of open source software – in return I open source a lot of my own software and
           contribute to the projects I use.
         </p>
-        <a href={site.author.github} className={buttonVariants()}>
-          View all repositories on GitHub
-        </a>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 pb-16">
+      <section className="mx-auto grid max-w-5xl gap-12 px-4 pb-16 lg:grid-cols-[minmax(0,42rem)_auto] lg:justify-between">
         <Timeline defaultValue={years.length} className="max-w-2xl">
           {years.map(([startYear, yearEntries], index) => (
             <TimelineItem key={startYear} step={index + 1}>
@@ -142,6 +139,11 @@ export default async function OpenSourcePage() {
             </TimelineItem>
           ))}
         </Timeline>
+        <aside className="self-start lg:sticky lg:top-24">
+          <a href={site.author.github} className={buttonVariants({ variant: 'outline' })}>
+            View all repositories on GitHub
+          </a>
+        </aside>
       </section>
     </>
   );
