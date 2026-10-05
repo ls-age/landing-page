@@ -2,7 +2,7 @@ export const site = {
   name: 'Lukas Hechenberger',
   url: 'https://lukashechenberger.com',
   description:
-    'Software developer building web apps end to end, from the database schema to the deploy.',
+    'Software developer building apps end to end, from the database schema to the deploy.',
   email: 'hello@ls-age.com',
   // The primary color of the shadcn Rose theme (light mode)
   themeColor: '#c70036',

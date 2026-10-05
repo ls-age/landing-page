@@ -87,16 +87,20 @@ export default async function HomePage() {
       <JsonLd thing={website} />
       <section className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:py-24 md:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-6">
-          <Image
-            src="/lukas-hechenberger.png"
-            alt={site.author.name}
-            width={256}
-            height={256}
-            priority
-            className="ring-background size-24 rounded-full shadow-md ring-4"
-          />
+          <figure className="flex w-fit flex-col items-center gap-3">
+            <Image
+              src="/lukas-hechenberger.png"
+              alt={site.author.name}
+              width={768}
+              height={768}
+              sizes="(min-width: 768px) 256px, 128px"
+              priority
+              className="ring-background size-32 rounded-full shadow-md ring-4 md:size-64"
+            />
+            <figcaption className="text-muted-foreground text-sm">{site.author.name}</figcaption>
+          </figure>
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            I build web apps, end to end.
+            I build apps, end to end.
           </h1>
           <p className="text-muted-foreground text-pretty text-lg">
             I&apos;m Lukas, a software developer. I take products from the first database schema to
@@ -109,13 +113,14 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-        <figure className="mx-auto flex w-64 flex-col items-center gap-3 sm:w-72">
+        <figure className="mx-auto flex w-48 flex-col items-center gap-3 md:w-72">
           {/* Recolored to the theme's primary color, so the card switches with the theme */}
           <Image
             src="/qrcard-lukas-hechenberger-light.webp"
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
+            sizes="(min-width: 768px) 288px, 192px"
             priority
             className="w-full rotate-2 rounded-2xl shadow-xl dark:hidden"
           />
@@ -124,10 +129,11 @@ export default async function HomePage() {
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
+            sizes="(min-width: 768px) 288px, 192px"
             priority
             className="hidden w-full rotate-2 rounded-2xl shadow-xl dark:block"
           />
-          <figcaption className="text-muted-foreground text-sm">
+          <figcaption className="text-muted-foreground whitespace-nowrap text-center text-sm">
             {site.author.name} on{' '}
             <a
               className="hover:text-foreground underline"
