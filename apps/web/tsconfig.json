@@ -3,9 +3,14 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"]
+      "@workspace/ui/*": ["../../packages/ui/src/*"],
+      "@payload-config": ["./src/payload.config.ts"]
     },
-    "plugins": [{ "name": "next" }]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",

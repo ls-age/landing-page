@@ -1,7 +1,7 @@
 import { buttonVariants } from '@workspace/ui/components/button';
 import Link from 'next/link';
 
-export default function NotFound() {
+export function PageNotFound() {
   return (
     <section className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-24 text-center">
       <h1 className="text-4xl font-semibold tracking-tight">Page not found</h1>

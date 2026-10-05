@@ -1,6 +1,7 @@
 import { cn } from '@workspace/ui/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Inter } from 'next/font/google';
+import type { ReactNode } from 'react';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -14,7 +15,7 @@ const fontMono = Geist_Mono({
   variable: '--font-mono',
 });
 
-export const metadata: Metadata = {
+export const siteMetadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: site.name, template: `%s · ${site.name}` },
   description: site.description,
@@ -22,15 +23,15 @@ export const metadata: Metadata = {
   creator: site.author.name,
 };
 
-export const viewport: Viewport = {
+export const siteViewport: Viewport = {
   themeColor: site.themeColor,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+/**
+ * The public site's `<html>` document. Shared by the `(app)` root layout and `global-not-found`,
+ * which renders without any layout (the Payload admin has its own root layout).
+ */
+export function SiteDocument({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"

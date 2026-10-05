@@ -4,7 +4,7 @@ Default to using Bun instead of Node.js: `bun install`, `bun run <script>`, `bun
 
 Lukas Hechenberger's website and blog (lukashechenberger.com). Bun workspaces + Turborepo monorepo, deployed to Vercel. The plan for the rebuild and the blog is in `docs/blog-plan.md`.
 
-- `apps/web` (`@ls-age/web`): Next.js app. Source in `src/`: `app/` (routes), `components/`, `lib/` (`site.ts` holds the site name, URL and author).
+- `apps/web` (`@ls-age/web`): Next.js app with Payload CMS. Source in `src/`: `app/(app)/` (the site's routes), `app/(payload)/` (admin and API, generated), `components/`, `lib/` (`site.ts` holds the site name, URL and author), `payload/` (collections, access helpers, hooks), `payload.config.ts`, `migrations/`, `__generated__/`.
 - `packages/ui` (`@workspace/ui`): shared shadcn components (Base UI, style `base-luma`, Rose theme). Add components from `apps/web` with `bunx shadcn@latest add <component>`; they land in `packages/ui`. Keep them as generated: style pages with Tailwind classes, don't restyle the components.
 - `packages/eslint-config`, `packages/typescript-config`, `packages/toolsync-plugin`: shared tooling config, kept in sync with the boraan and QRcard repos.
 
@@ -23,6 +23,17 @@ Lukas Hechenberger's website and blog (lukashechenberger.com). Bun workspaces + 
 - `.claude/settings.json` enables the Vercel, PostHog and Neon Claude Code plugins, which bring their own skills and MCP servers.
 - Skills from the [skills](https://skills.sh) registry are installed with `bunx skills add <owner/repo> -s <skill> -a claude-code` and tracked in `skills-lock.json`. Only install official skills (published by the maker of the technology), and only for topics no plugin covers. Project-specific skills live in `.claude/skills` next to them.
 
+## Payload
+
+Run Payload commands from `apps/web` via the `x-payload` script (`bun run x-payload <command>`), not `payload` directly.
+
+- `src/__generated__/` is generated and git-ignored (`bun run build:payload` writes `payload-types.ts` and the admin's `importMap.js`). Never edit them by hand; regenerate after changing collections, globals or blocks.
+- The site and the admin have separate root layouts (`app/(app)/layout.tsx`, `app/(payload)/layout.tsx`); unmatched URLs render `app/global-not-found.tsx`.
+- Databases are Neon branches: production uses the main branch, every preview deployment gets its own branch (Vercel Marketplace integration), and local development uses the `dev` branch (`DATABASE_URL` in `apps/web/.env.local`). Media go to Vercel Blob on Vercel and to `apps/web/media` locally.
+- Schema push is disabled (`push: false`), also locally: every database runs the migrations (`bun run migration:deploy`; deployments run it before the build, see `apps/web/vercel.json`). Create migrations with the `add-migration` skill and commit the `.ts`, `.json` and `index.ts` together.
+- Payload's default access is "any logged-in user". Define every operation of every collection and global explicitly with the helpers in `src/payload/access.ts` (`src/payload/access.test.ts` fails otherwise).
+- Public pages are static and read Payload through the Local API; collections revalidate the whole site after changes (`src/payload/revalidate.ts`).
+
 ## Next.js docs
 
 `apps/web` runs Next.js 16.3, which may differ from training data in APIs, conventions and file structure. Before writing code in `apps/web`, check the version-matched docs at `apps/web/node_modules/next/dist/docs/`.
@@ -34,6 +45,7 @@ CI runs these; run them before pushing (or use the `pre-pr` skill):
 - `bun run check`: knip, Prettier and `tsc --noEmit` via turbo.
 - `bun run lint`: ESLint with `--max-warnings 0`.
 - `bun run format`: fix Prettier issues.
+- `bun run test` in `apps/web`: unit tests (`bun test`).
 
 ## Changesets
 
