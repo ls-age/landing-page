@@ -1,5 +1,13 @@
 # @ls-age/web
 
+## 1.0.1
+
+### Patch Changes
+
+- [#70](https://github.com/ls-age/landing-page/pull/70) [`b5f19af`](https://github.com/ls-age/landing-page/commit/b5f19afba95ac54cb156758bb5458468456c5db2) - Link the footer's imprint to hechenbros.com/impressum/.
+
+- [#72](https://github.com/ls-age/landing-page/pull/72) [`a4e17b5`](https://github.com/ls-age/landing-page/commit/a4e17b5a64d440bd043a9068c3f84e4d8394289f) - Replace the "LH" monogram icons with the new "lh_" icon (favicon, Apple touch icon and web app manifest icons) and show it in the footer.
+
 ## 1.0.0
 
 ### Major Changes
