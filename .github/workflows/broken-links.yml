@@ -27,12 +27,13 @@ jobs:
       ENVIRONMENT: ${{ github.event.client_payload.environment || 'manual' }}
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
-      - name: Skip protected previews without a bypass secret
+      # Vercel sends the deployment's own URL, which is protected for production deployments too
+      - name: Skip deployments without a bypass secret
         id: guard
         run: |
           echo "Checking $URL ($ENVIRONMENT) at $SHA"
-          if [ "$ENVIRONMENT" = "preview" ] && [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
-            echo "::warning::Set the VERCEL_AUTOMATION_BYPASS_SECRET secret to check preview deployments"
+          if [ "${{ github.event_name }}" = "repository_dispatch" ] && [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::warning::Set the VERCEL_AUTOMATION_BYPASS_SECRET secret to check Vercel deployments"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 

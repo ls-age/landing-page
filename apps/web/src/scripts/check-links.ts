@@ -10,8 +10,24 @@ import { check, type LinkResult, LinkState } from 'linkinator';
 const url = process.argv[2] ?? 'http://localhost:3001';
 const { origin } = new URL(url);
 
-// Lets the crawler through Vercel's deployment protection on preview deployments
+// Lets the crawler through Vercel's deployment protection
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET; // eslint-disable-line turbo/no-undeclared-env-vars -- not run through turbo
+const headers: Record<string, string> = bypassSecret
+  ? { 'x-vercel-protection-bypass': bypassSecret }
+  : {};
+
+// A protected deployment redirects to Vercel's login page, which linkinator would happily check
+// instead of the site
+const start = await fetch(url, { headers, redirect: 'manual' });
+if (!start.ok) {
+  console.error(
+    `${url} answered with ${start.status} ${start.headers.get('location') ?? ''}`.trim() +
+      (bypassSecret
+        ? ''
+        : '\nIf the deployment is protected, set VERCEL_AUTOMATION_BYPASS_SECRET.'),
+  );
+  process.exit(1);
+}
 
 const { links } = await check({
   path: url,
@@ -22,7 +38,7 @@ const { links } = await check({
   retryErrors: true,
   retryErrorsCount: 2,
   retry: true,
-  headers: bypassSecret ? { 'x-vercel-protection-bypass': bypassSecret } : {},
+  headers,
   linksToSkip: [
     // Answers automated requests with 403
     String.raw`^https://crates\.io/`,
