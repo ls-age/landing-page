@@ -84,9 +84,14 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
       {(previous || next) && (
         <footer className="border-t pt-8">
           <nav aria-label="More posts" className="grid gap-4 sm:grid-cols-2">
-            {previous && <AdjacentPost post={previous} label="Previous" />}
+            {previous && <AdjacentPost post={previous} rel="prev" label="Previous" />}
             {next && (
-              <AdjacentPost post={next} label="Next" className="sm:col-start-2 sm:text-right" />
+              <AdjacentPost
+                post={next}
+                rel="next"
+                label="Next"
+                className="sm:col-start-2 sm:text-right"
+              />
             )}
           </nav>
         </footer>
@@ -97,15 +102,17 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
 
 function AdjacentPost({
   post,
+  rel,
   label,
   className,
 }: {
   post: Awaited<ReturnType<typeof getPosts>>[number];
+  rel: 'prev' | 'next';
   label: string;
   className?: string;
 }) {
   return (
-    <Link href={`/blog/${post.slug}`} rel={label.toLowerCase()} className={className}>
+    <Link href={`/blog/${post.slug}`} rel={rel} className={className}>
       <div className="hover:bg-muted/40 flex flex-col gap-1 rounded-lg border p-4">
         <p className="text-muted-foreground text-sm">{label}</p>
         <p className="font-semibold">{post.title}</p>
