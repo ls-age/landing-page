@@ -30,7 +30,7 @@ export default async function RepositoryPage({ params }: PageProps<'/open-source
 
   return (
     <>
-      <section className="mx-auto flex max-w-3xl flex-col items-start gap-4 px-4 py-16">
+      <section className="mx-auto flex max-w-5xl flex-col items-start gap-4 px-4 py-16">
         <h1 className="break-words text-4xl font-semibold tracking-tight">
           {repository.nameWithOwner}
         </h1>
@@ -52,7 +52,7 @@ export default async function RepositoryPage({ params }: PageProps<'/open-source
         </a>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 pb-16">
+      <section className="mx-auto max-w-5xl px-4 pb-16">
         {repository.readme ? (
           <article
             // Hide the anchor icons GitHub adds next to each heading
