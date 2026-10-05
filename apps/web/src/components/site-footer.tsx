@@ -1,10 +1,14 @@
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 import { site } from '@/lib/site';
 
 export function SiteFooter() {
   return (
     <footer className="text-muted-foreground border-t py-8 text-center text-sm">
       <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4">
+        <Link href="/" aria-label={site.name} className="mx-auto mb-2">
+          <Logo className="size-12" />
+        </Link>
         <p>
           &copy; {new Date().getFullYear()} {site.author.name}
         </p>
