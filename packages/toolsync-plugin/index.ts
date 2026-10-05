@@ -19,6 +19,11 @@ const repoPlugin = {
         '@toolsync/builtin/github-actions': {
           workflows: {
             ci: {
+              // The repository's default branch is `master`
+              on: {
+                push: { branches: ['master'] },
+                pull_request: { branches: ['master'] },
+              },
               jobs: {
                 build: {
                   steps: [
