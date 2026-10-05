@@ -88,57 +88,62 @@ export default async function OpenSourcePage() {
       </section>
 
       <section className="mx-auto grid max-w-5xl gap-12 px-4 pb-16 lg:grid-cols-[minmax(0,42rem)_auto] lg:justify-between">
-        <Timeline defaultValue={years.length} className="max-w-2xl">
-          {years.map(([startYear, yearEntries], index) => (
-            <TimelineItem key={startYear} step={index + 1}>
-              <TimelineHeader>
-                <TimelineSeparator />
-                <TimelineTitle render={<h2 />} className="text-lg font-semibold leading-4">
-                  {startYear}
-                </TimelineTitle>
-                <TimelineIndicator className="bg-primary" />
-              </TimelineHeader>
-              <TimelineContent className="mt-4 flex flex-col gap-6">
-                {yearEntries.map((entry) => {
-                  const Icon = entry.kind === 'project' ? FolderGit2Icon : GitPullRequestIcon;
+        <div className="flex flex-col gap-8">
+          <h2 className="text-2xl font-semibold tracking-tight">Contributions</h2>
+          <Timeline defaultValue={years.length} className="max-w-2xl">
+            {years.map(([startYear, yearEntries], index) => (
+              <TimelineItem key={startYear} step={index + 1}>
+                <TimelineHeader>
+                  <TimelineSeparator />
+                  <TimelineTitle render={<h3 />} className="text-lg font-semibold leading-4">
+                    {startYear}
+                  </TimelineTitle>
+                  <TimelineIndicator className="bg-primary" />
+                </TimelineHeader>
+                <TimelineContent className="mt-4 flex flex-col gap-6">
+                  {yearEntries.map((entry) => {
+                    const Icon = entry.kind === 'project' ? FolderGit2Icon : GitPullRequestIcon;
 
-                  return (
-                    <article key={`${entry.kind}:${entry.key}`} className="flex flex-col gap-2">
-                      <h3 className="text-foreground flex items-center gap-2 break-words text-base font-medium">
-                        <Icon className="text-primary size-4 shrink-0" aria-hidden />
-                        {entry.kind === 'project' ? (
-                          <Link href={entry.href} className="hover:underline">
-                            {entry.title}
-                          </Link>
-                        ) : (
-                          <a href={entry.href} className="hover:underline">
-                            {entry.title}
-                          </a>
-                        )}
-                      </h3>
-                      {entry.description && <p>{entry.description}</p>}
-                      <div className="flex flex-wrap gap-2">
-                        {entry.kind === 'project' ? (
-                          <Badge variant="secondary">
-                            <StarIcon data-icon="inline-start" />
-                            {entry.count}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            <GitPullRequestIcon data-icon="inline-start" />
-                            {entry.count === 1 ? '1 pull request' : `${entry.count} pull requests`}
-                          </Badge>
-                        )}
-                        {entry.language && <Badge variant="outline">{entry.language}</Badge>}
-                        <Badge variant="outline">{period(entry)}</Badge>
-                      </div>
-                    </article>
-                  );
-                })}
-              </TimelineContent>
-            </TimelineItem>
-          ))}
-        </Timeline>
+                    return (
+                      <article key={`${entry.kind}:${entry.key}`} className="flex flex-col gap-2">
+                        <h4 className="text-foreground flex items-center gap-2 break-words text-base font-medium">
+                          <Icon className="text-primary size-4 shrink-0" aria-hidden />
+                          {entry.kind === 'project' ? (
+                            <Link href={entry.href} className="hover:underline">
+                              {entry.title}
+                            </Link>
+                          ) : (
+                            <a href={entry.href} className="hover:underline">
+                              {entry.title}
+                            </a>
+                          )}
+                        </h4>
+                        {entry.description && <p>{entry.description}</p>}
+                        <div className="flex flex-wrap gap-2">
+                          {entry.kind === 'project' ? (
+                            <Badge variant="secondary">
+                              <StarIcon data-icon="inline-start" />
+                              {entry.count}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              <GitPullRequestIcon data-icon="inline-start" />
+                              {entry.count === 1
+                                ? '1 pull request'
+                                : `${entry.count} pull requests`}
+                            </Badge>
+                          )}
+                          {entry.language && <Badge variant="outline">{entry.language}</Badge>}
+                          <Badge variant="outline">{period(entry)}</Badge>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </TimelineContent>
+              </TimelineItem>
+            ))}
+          </Timeline>
+        </div>
         <aside className="self-start lg:sticky lg:top-24">
           <a href={site.author.github} className={buttonVariants({ variant: 'outline' })}>
             View all repositories on GitHub
