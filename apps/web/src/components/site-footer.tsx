@@ -31,7 +31,7 @@ export function SiteFooter() {
             Hechenbros
           </a>{' '}
           &middot;{' '}
-          <a className="hover:text-foreground underline" href="https://hechenbros.com/imprint">
+          <a className="hover:text-foreground underline" href="https://hechenbros.com/impressum/">
             Imprint
           </a>{' '}
           &middot;{' '}
