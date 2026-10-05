@@ -10,6 +10,7 @@
     "build:payload": "bun x-payload generate:types && bun x-payload generate:importmap",
     "check:types": "next typegen && tsc --noEmit",
     "dev": "next dev --port 3001",
+    "integration:broken-links": "bun src/scripts/check-links.ts",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "migration:create": "BLOB_READ_WRITE_TOKEN=vercel_blob_rw_placeholder_placeholder bun x-payload migrate:create",
@@ -50,6 +51,7 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9.39.4",
+    "linkinator": "^8.1.0",
     "schema-dts": "^2.1.0",
     "typescript": "^5.9.3"
   },

@@ -54,7 +54,7 @@ export function blogPosting(post: {
     dateModified: post.updatedAt,
     author,
     publisher: author,
-    image: post.image ?? `${url}/opengraph-image`,
+    image: post.image ?? `${url}/image.png`,
     inLanguage: 'en',
     isPartOf: { '@id': `${site.url}/#website` },
   };
