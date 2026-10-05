@@ -82,7 +82,7 @@ export default async function OpenSourcePage() {
       <section className="mx-auto flex max-w-5xl flex-col items-start gap-4 px-4 py-16">
         <h1 className="text-4xl font-semibold tracking-tight">Open Source</h1>
         <p className="text-muted-foreground max-w-2xl text-lg">
-          I use a lot of open source software – in return I open source most of my own software and
+          I use a lot of open source software – in return I open source a lot of my own software and
           contribute to the projects I use.
         </p>
         <a href={site.author.github} className={buttonVariants()}>
