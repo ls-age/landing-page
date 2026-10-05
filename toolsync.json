@@ -17,9 +17,6 @@
       "//#check:knip": {},
       "check": {
         "dependsOn": ["//#check:knip"]
-      },
-      "build": {
-        "env": ["BLOB_READ_WRITE_TOKEN", "DATABASE_URL", "GITHUB_TOKEN", "PAYLOAD_SECRET"]
       }
     }
   },

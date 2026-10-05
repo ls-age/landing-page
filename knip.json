@@ -6,5 +6,6 @@
     "@toolsync/builtin",
     "@workspace/toolsync-plugin",
     "@tailwindcss/postcss"
-  ]
+  ],
+  "ignoreUnresolved": ["@/__generated__/payload-types"]
 }

@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "bun run migration:deploy && bun run build"
+  "installCommand": "bunx bun@1.3.12 install",
+  "buildCommand": "bunx bun@1.3.12 run migration:deploy && bunx bun@1.3.12 x turbo run build"
 }
