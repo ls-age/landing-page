@@ -14,6 +14,7 @@ interface GitHubRepository {
   description: string | null;
   fork: boolean;
   archived: boolean;
+  created_at: string;
   pushed_at: string;
   stargazers_count: number;
   language: string | null;
@@ -26,6 +27,7 @@ export interface Repository {
   nameWithOwner: string;
   url: string;
   description: string | undefined;
+  createdAt: string;
   pushedAt: string;
   stars: number;
   language: string | undefined;
@@ -59,6 +61,7 @@ function toRepository(repo: GitHubRepository): Repository {
     nameWithOwner: repo.full_name,
     url: repo.html_url,
     description: repo.description ?? undefined,
+    createdAt: repo.created_at,
     pushedAt: repo.pushed_at,
     stars: repo.stargazers_count,
     language: repo.language ?? undefined,
@@ -138,5 +141,72 @@ export async function getRepository(owner: string, name: string) {
   return { ...repository, release, readme };
 }
 
-export const formatDate = (date: string) =>
-  new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(date));
+/** GitHub user whose pull requests to other projects are listed as contributions. */
+const author = 'LukasHechenberger';
+
+/** Organizations whose pull requests are work, not listed as open source contributions. */
+const workOrganizations = ['atSCM', 'atvise', 'hechenbros'];
+
+interface GitHubPullRequest {
+  repository_url: string;
+  pull_request: { merged_at: string | null };
+}
+
+export interface Contribution extends Pick<
+  Repository,
+  'nameWithOwner' | 'url' | 'description' | 'language'
+> {
+  pullRequests: number;
+  /** URL of the merged pull requests on GitHub */
+  pullRequestsUrl: string;
+  firstMergedAt: string;
+  lastMergedAt: string;
+}
+
+/** Repositories of other projects with merged pull requests by the author, most recently started first. */
+export async function getContributions() {
+  const excluded = [...owners, ...workOrganizations].map((owner) => `-user:${owner}`).join(' ');
+  const query = encodeURIComponent(`is:pr is:merged author:${author} ${excluded}`);
+
+  const pullRequests: GitHubPullRequest[] = [];
+  // The search API returns at most 1000 results
+  for (let page = 1; page <= 10; page++) {
+    const response = await github(`/search/issues?q=${query}&per_page=100&page=${page}`);
+    const { items } = (await response.json()) as { items: GitHubPullRequest[] };
+    pullRequests.push(...items);
+    if (items.length < 100) break;
+  }
+
+  const mergedAtByRepository = new Map<string, string[]>();
+  for (const { repository_url, pull_request } of pullRequests) {
+    if (!pull_request.merged_at) continue;
+    const nameWithOwner = repository_url.replace('https://api.github.com/repos/', '');
+    mergedAtByRepository.set(nameWithOwner, [
+      ...(mergedAtByRepository.get(nameWithOwner) ?? []),
+      pull_request.merged_at,
+    ]);
+  }
+
+  const contributions = await Promise.all(
+    [...mergedAtByRepository].map(async ([nameWithOwner, dates]): Promise<Contribution> => {
+      const mergedAt = [...dates].sort();
+      const repo = await unlessNotFound(
+        github(`/repos/${nameWithOwner}`).then(async (r) => (await r.json()) as GitHubRepository),
+      );
+      const pullRequestsQuery = encodeURIComponent(`is:pr is:merged author:${author}`);
+
+      return {
+        nameWithOwner,
+        url: `https://github.com/${nameWithOwner}`,
+        description: repo?.description ?? undefined,
+        language: repo?.language ?? undefined,
+        pullRequests: mergedAt.length,
+        pullRequestsUrl: `https://github.com/${nameWithOwner}/pulls?q=${pullRequestsQuery}`,
+        firstMergedAt: mergedAt[0]!,
+        lastMergedAt: mergedAt.at(-1)!,
+      };
+    }),
+  );
+
+  return contributions.sort((a, b) => b.firstMergedAt.localeCompare(a.firstMergedAt));
+}
