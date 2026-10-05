@@ -17,6 +17,8 @@ import { Media } from './payload/collections/media';
 import { Posts } from './payload/collections/posts';
 import { Users } from './payload/collections/users';
 import { collectionPath } from './payload/helpers';
+import { mcpPlugin } from './payload/mcp';
+import { postContentFormatResource, postDraftTool, postsResource } from './payload/post-draft-tool';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -73,6 +75,17 @@ export default buildConfig({
       generateImage: ({ doc }) => doc.featuredImage,
       generateURL: ({ collectionSlug, doc }) =>
         new URL((collectionSlug && collectionPath(collectionSlug, doc)) || '/', site.url).href,
+    }),
+    mcpPlugin({
+      collections: {
+        // Agents write posts with `savePostDraft` only, which validates the content strictly
+        posts: { enabled: { find: true } },
+        media: { enabled: { find: true } },
+      },
+      mcp: {
+        tools: [postDraftTool],
+        resources: [postContentFormatResource, postsResource],
+      },
     }),
     vercelBlobStorage({
       // Local development stores uploads on disk (`apps/web/media`); `migration:create` passes a

@@ -3,6 +3,28 @@
     "next-devtools": {
       "command": "bunx",
       "args": ["next-devtools-mcp@latest"]
+    },
+    "payload-production": {
+      "type": "http",
+      "url": "https://lukashechenberger.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${PAYLOAD_PRODUCTION_MCP_TOKEN}"
+      }
+    },
+    "payload-preview": {
+      "type": "http",
+      "url": "${PAYLOAD_PREVIEW_MCP_URL:-https://preview.invalid/api/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${PAYLOAD_PREVIEW_MCP_TOKEN:-${PAYLOAD_PRODUCTION_MCP_TOKEN}}",
+        "x-vercel-protection-bypass": "${VERCEL_PROTECTION_BYPASS:-}"
+      }
+    },
+    "payload-local": {
+      "type": "http",
+      "url": "http://localhost:3001/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${PAYLOAD_LOCAL_MCP_TOKEN}"
+      }
     }
   }
 }

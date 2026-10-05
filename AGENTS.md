@@ -16,9 +16,14 @@ Lukas Hechenberger's website and blog (lukashechenberger.com). Bun workspaces + 
 
 - `.mcp.json` is generated and git-ignored: `bun run prepare` creates it from the committed `.mcp.template.json`, expanding `${VAR}` / `${VAR:-default}` from the environment (put values in the git-ignored `.env.local`). Edit the template, never `.mcp.json`, and never put token values in it. Restart Claude Code afterwards.
 
-  | Server          | Variable | Notes                                             |
-  | --------------- | -------- | ------------------------------------------------- |
-  | `next-devtools` | –        | Errors, routes and docs of the running dev server |
+  | Server               | Variable                       | Required | Notes                                                                                                           |
+  | -------------------- | ------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------- |
+  | `next-devtools`      | –                              | –        | Errors, routes and docs of the running dev server                                                               |
+  | `payload-local`      | `PAYLOAD_LOCAL_MCP_TOKEN`      | yes      | MCP API key from the local admin panel (MCP → API keys; tick Find for posts and media); dev server on port 3001 |
+  | `payload-production` | `PAYLOAD_PRODUCTION_MCP_TOKEN` | yes      | MCP API key from the production admin panel (tick Find for posts and media)                                     |
+  | `payload-preview`    | `PAYLOAD_PREVIEW_MCP_URL`      | no       | `https://<deployment>.vercel.app/api/mcp` (use the `switch-preview-mcp` skill)                                  |
+  | `payload-preview`    | `PAYLOAD_PREVIEW_MCP_TOKEN`    | no       | Falls back to `PAYLOAD_PRODUCTION_MCP_TOKEN` (preview databases are branched off production)                    |
+  | `payload-preview`    | `VERCEL_PROTECTION_BYPASS`     | no       | Vercel Protection Bypass for Automation secret; previews are SSO-protected without it                           |
 
 - `.claude/settings.json` enables the Vercel, PostHog and Neon Claude Code plugins, which bring their own skills and MCP servers.
 - Skills from the [skills](https://skills.sh) registry are installed with `bunx skills add <owner/repo> -s <skill> -a claude-code` and tracked in `skills-lock.json`. Only install official skills (published by the maker of the technology), and only for topics no plugin covers. Project-specific skills live in `.claude/skills` next to them.
@@ -35,6 +40,7 @@ Run Payload commands from `apps/web` via the `x-payload` script (`bun run x-payl
 - Payload's default access is "any logged-in user". Define every operation of every collection and global explicitly with the helpers in `src/payload/access.ts` (`src/payload/access.test.ts` fails otherwise).
 - Public pages are static and read Payload through the Local API; collections revalidate the whole site after changes (`src/payload/revalidate.ts`).
 - Blog posts (`posts`) have drafts; the site shows published posts once their `publishedAt` has come (`src/lib/posts.ts`, the same rule as their read access). The live preview goes through `/api/draft` (admins only). Rich text renders with `src/components/rich-text.tsx` inside shadcn's Typeset styles; code blocks (Payload's `CodeBlock`, languages in `src/lib/code-languages.ts`) are highlighted on the server with Shiki.
+- Agents write posts only with the `savePostDraft` MCP tool (`src/payload/post-draft-tool.ts`, see the `blog-post` skill): it only saves drafts and rejects content that isn't valid Lexical JSON for the site (`src/payload/post-content.ts`; the `post-content-format` resource shows the format). The plugin's own tools are read-only (`find`).
 - Keep the slug of a published post (`titleBasedSlug` in `src/payload/helpers.ts` generates it once from the title).
 
 ## Analytics

@@ -9,7 +9,7 @@
     "build": "next build",
     "build:payload": "bun x-payload generate:types && bun x-payload generate:importmap",
     "check:types": "next typegen && tsc --noEmit",
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "migration:create": "BLOB_READ_WRITE_TOKEN=vercel_blob_rw_placeholder_placeholder bun x-payload migrate:create",
@@ -22,6 +22,7 @@
     "@payloadcms/db-vercel-postgres": "3.90.2",
     "@payloadcms/live-preview-react": "3.90.2",
     "@payloadcms/next": "3.90.2",
+    "@payloadcms/plugin-mcp": "3.90.2",
     "@payloadcms/plugin-seo": "3.90.2",
     "@payloadcms/richtext-lexical": "3.90.2",
     "@payloadcms/storage-vercel-blob": "3.90.2",
@@ -37,7 +38,8 @@
     "server-only": "^0.0.1",
     "sharp": "^0.35.4",
     "shiki": "^4.5.0",
-    "slugify": "^1.6.9"
+    "slugify": "^1.6.9",
+    "zod": "^3.25"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
