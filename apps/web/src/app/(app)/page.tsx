@@ -113,13 +113,14 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-        <figure className="mx-auto flex w-64 flex-col items-center gap-3 sm:w-72">
+        <figure className="mx-auto flex w-48 flex-col items-center gap-3 md:w-72">
           {/* Recolored to the theme's primary color, so the card switches with the theme */}
           <Image
             src="/qrcard-lukas-hechenberger-light.webp"
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
+            sizes="(min-width: 768px) 288px, 192px"
             priority
             className="w-full rotate-2 rounded-2xl shadow-xl dark:hidden"
           />
@@ -128,10 +129,11 @@ export default async function HomePage() {
             alt={`QRcard of ${site.author.name}: email address, website, Instagram profile and QR code`}
             width={752}
             height={1233}
+            sizes="(min-width: 768px) 288px, 192px"
             priority
             className="hidden w-full rotate-2 rounded-2xl shadow-xl dark:block"
           />
-          <figcaption className="text-muted-foreground text-sm">
+          <figcaption className="text-muted-foreground whitespace-nowrap text-center text-sm">
             {site.author.name} on{' '}
             <a
               className="hover:text-foreground underline"
