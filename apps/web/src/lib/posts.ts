@@ -26,13 +26,13 @@ export async function getPosts() {
   return docs;
 }
 
-/** The visible posts published right before (`previous`) and after (`next`) the one with `slug` */
+/** The posts around the one with `slug` in the blog's order (newest first): `previous` is newer, `next` is older */
 export async function getAdjacentPosts(slug: string) {
   const posts = await getPosts();
   const index = posts.findIndex((post) => post.slug === slug);
   if (index === -1) return {};
 
-  return { previous: posts[index + 1], next: index > 0 ? posts[index - 1] : undefined };
+  return { previous: index > 0 ? posts[index - 1] : undefined, next: posts[index + 1] };
 }
 
 /** A visible post, or with `draft` its latest version (for the live preview) */
