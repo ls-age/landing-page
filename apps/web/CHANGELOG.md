@@ -1,5 +1,11 @@
 # @ls-age/web
 
+## 1.2.0
+
+### Minor Changes
+
+- [#82](https://github.com/ls-age/landing-page/pull/82) [`3a9280c`](https://github.com/ls-age/landing-page/commit/3a9280c485cef83f8355add02811e7bdd152ba71) - Link to the previous and next blog post, with their title and description, at the end of each post
+
 ## 1.1.1
 
 ### Patch Changes
