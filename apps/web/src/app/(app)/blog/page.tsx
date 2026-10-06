@@ -17,14 +17,14 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-16">
+      <section className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-16">
         <h1 className="text-4xl font-semibold tracking-tight">Blog</h1>
         <p className="text-muted-foreground text-lg">
           Notes on things I built and problems I solved, mostly with Next.js and Payload.
         </p>
       </section>
 
-      <section className="mx-auto flex max-w-3xl flex-col gap-4 px-4 pb-16">
+      <section className="mx-auto flex max-w-5xl flex-col gap-4 px-4 pb-16">
         {posts.length === 0 && <p className="text-muted-foreground">No posts yet.</p>}
         {posts.map((post) => (
           <Link key={post.id} href={`/blog/${post.slug}`}>

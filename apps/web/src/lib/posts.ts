@@ -26,6 +26,15 @@ export async function getPosts() {
   return docs;
 }
 
+/** The posts around the one with `slug` in the blog's order (newest first): `previous` is newer, `next` is older */
+export async function getAdjacentPosts(slug: string) {
+  const posts = await getPosts();
+  const index = posts.findIndex((post) => post.slug === slug);
+  if (index === -1) return {};
+
+  return { previous: index > 0 ? posts[index - 1] : undefined, next: posts[index + 1] };
+}
+
 /** A visible post, or with `draft` its latest version (for the live preview) */
 export async function getPost(slug: string, { draft = false } = {}) {
   const payload = await getPayload({ config });

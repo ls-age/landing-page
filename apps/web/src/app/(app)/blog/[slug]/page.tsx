@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { blogPosting, JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
 import { isPreviewingDrafts } from '@/lib/admin';
-import { formatDate, getPost, getPosts } from '@/lib/posts';
+import { formatDate, getAdjacentPosts, getPost, getPosts } from '@/lib/posts';
 import { site } from '@/lib/site';
 import { RefreshRouteOnSave } from '@/payload/live-preview';
 
@@ -43,10 +44,11 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
   const post = await getPost(slug, { draft });
   if (!post) notFound();
 
+  const { previous, next } = await getAdjacentPosts(slug);
   const image = typeof post.featuredImage === 'object' ? post.featuredImage : undefined;
 
   return (
-    <article className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16">
+    <article className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-16">
       {draft && <RefreshRouteOnSave />}
       <JsonLd
         thing={blogPosting({
@@ -79,6 +81,42 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
         />
       )}
       <RichText data={post.content} />
+      {(previous || next) && (
+        <footer className="border-t pt-8">
+          <nav aria-label="More posts" className="grid gap-4 sm:grid-cols-2">
+            {previous && <AdjacentPost post={previous} rel="prev" label="Previous" />}
+            {next && (
+              <AdjacentPost
+                post={next}
+                rel="next"
+                label="Next"
+                className="sm:col-start-2 sm:text-right"
+              />
+            )}
+          </nav>
+        </footer>
+      )}
     </article>
+  );
+}
+
+function AdjacentPost({
+  post,
+  rel,
+  label,
+  className,
+}: {
+  post: Awaited<ReturnType<typeof getPosts>>[number];
+  rel: 'prev' | 'next';
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Link href={`/blog/${post.slug}`} rel={rel} className={className}>
+      <div className="hover:bg-muted/40 flex flex-col gap-1 rounded-lg border p-4">
+        <p className="text-muted-foreground text-sm">{label}</p>
+        <p className="font-semibold">{post.title}</p>
+      </div>
+    </Link>
   );
 }
