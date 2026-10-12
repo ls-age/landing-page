@@ -35,6 +35,7 @@ function volume(geometry: BufferGeometry) {
 const settings: ModelSettings = {
   width: 10,
   trim: false,
+  height: 1,
   colors: {},
   base: 'rectangle',
   baseHeight: 2,
@@ -52,6 +53,18 @@ const baseOf = (changes: Partial<ModelSettings>) => {
   );
   base?.geometry.computeBoundingBox();
   return base?.geometry.boundingBox ?? new Box3();
+};
+
+/** The top of the square with a shared height of 2 mm */
+const topOf = (changes: Partial<ModelSettings>) => {
+  const square = buildParts(toMillimeters(regions, 10).regions, {
+    ...settings,
+    base: 'none',
+    height: 2,
+    ...changes,
+  })[0];
+  square?.geometry.computeBoundingBox();
+  return square?.geometry.boundingBox?.max.z;
 };
 
 describe('buildParts', () => {
@@ -111,5 +124,15 @@ describe('buildParts', () => {
     expect(base?.geometry.boundingBox?.max.toArray()).toEqual([40, 40, 0]);
     expect(bounds(model.regions)).toEqual(toFrame(0, 20, 20, 40));
     expect(square?.name).toBe('000000');
+  });
+
+  test('uses the shared height unless a color has its own', () => {
+    expect(topOf({})).toBe(2);
+    expect(topOf({ colors: { '#000000': { enabled: true, height: 0.6 } } })).toBeCloseTo(0.6, 6);
+  });
+
+  test('makes the base plate as thick as the colors unless it has its own thickness', () => {
+    expect(baseOf({ height: 3, baseHeight: undefined }).min.z).toBe(-3);
+    expect(baseOf({ height: 3 }).min.z).toBe(-2);
   });
 });

@@ -17,8 +17,8 @@ import { removeUnprintable, thickenThinAreas } from './thin-areas';
 
 export interface ColorSettings {
   enabled: boolean;
-  /** mm */
-  height: number;
+  /** mm, the shared height (`ModelSettings.height`) if not set */
+  height?: number;
 }
 
 export type BaseKind = 'none' | 'outline' | 'rectangle';
@@ -30,10 +30,12 @@ export interface ModelSettings {
   width: number;
   /** Frame the model by the selected colors instead of the SVG's canvas */
   trim: boolean;
+  /** The height of the colors that don't have their own, in mm */
+  height: number;
   colors: Record<string, ColorSettings>;
   base: BaseKind;
-  /** mm */
-  baseHeight: number;
+  /** The thickness of the base plate in mm, the shared height (`height`) if not set */
+  baseHeight?: number;
   /** The margin around a rectangular base (the model's frame), in mm */
   baseMargin: number;
   /**
@@ -56,7 +58,7 @@ export interface Part {
   geometry: BufferGeometry;
 }
 
-export const defaultColorSettings: ColorSettings = { enabled: true, height: 1 };
+export const defaultColorSettings: ColorSettings = { enabled: true };
 
 export function bounds(regions: ColorRegion[]): Frame {
   const { left, top, right, bottom } = boundsOf(regions.map(({ shape }) => shape));
@@ -121,8 +123,8 @@ export function printedRegions(
   return result;
 }
 
-const heightOf = (settings: Pick<ModelSettings, 'colors'>, color: string) =>
-  (settings.colors[color] ?? defaultColorSettings).height;
+const heightOf = (settings: Pick<ModelSettings, 'colors' | 'height'>, color: string) =>
+  settings.colors[color]?.height ?? settings.height;
 
 const isCutout = (settings: Pick<ModelSettings, 'base' | 'basePlacement'>) =>
   settings.base === 'rectangle' && settings.basePlacement === 'cutout';
@@ -132,7 +134,7 @@ const isCutout = (settings: Pick<ModelSettings, 'base' | 'basePlacement'>) =>
  * (with their tops at 0) if it's cut out
  */
 export const colorTop = (
-  settings: Pick<ModelSettings, 'colors' | 'base' | 'basePlacement'>,
+  settings: Pick<ModelSettings, 'colors' | 'height' | 'base' | 'basePlacement'>,
   color: string,
 ) => (isCutout(settings) ? 0 : heightOf(settings, color));
 
@@ -183,8 +185,8 @@ export function buildParts(
     };
   });
 
-  if (settings.base !== 'none' && regions.length > 0 && settings.baseHeight > 0) {
-    const thickness = settings.baseHeight;
+  const thickness = settings.baseHeight ?? settings.height;
+  if (settings.base !== 'none' && regions.length > 0 && thickness > 0) {
     let geometry: BufferGeometry | undefined;
     if (settings.base === 'rectangle') {
       const margin = settings.baseMargin;

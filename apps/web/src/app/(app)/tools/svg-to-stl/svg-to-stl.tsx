@@ -140,21 +140,28 @@ const baseItems: { value: BaseKind; label: string }[] = [
   { value: 'rectangle', label: 'Rectangle' },
 ];
 
-/** A number input that keeps its value while it's being edited and reports valid numbers only */
+/**
+ * A number input that keeps its value while it's being edited and reports valid numbers only.
+ * With `onClear`, it may also be empty.
+ */
 function NumberField({
   label,
   hideLabel = false,
   hint,
   value,
+  placeholder,
   onChange,
+  onClear,
   min = 0,
   step = 0.1,
 }: {
   label: string;
   hideLabel?: boolean;
   hint?: string;
-  value: number;
+  value: number | undefined;
+  placeholder?: string;
   onChange: (value: number) => void;
+  onClear?: () => void;
   min?: number;
   step?: number;
 }) {
@@ -174,9 +181,11 @@ function NumberField({
         min={min}
         step={step}
         defaultValue={initialValue}
+        placeholder={placeholder}
         onChange={(event) => {
           const number = event.target.valueAsNumber;
           if (Number.isFinite(number) && number >= min) onChange(number);
+          else if (event.target.value === '') onClear?.();
         }}
       />
       {hint && <p className="text-muted-foreground text-sm">{hint}</p>}
@@ -267,9 +276,9 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
   const [settings, setSettings] = useState<ModelSettings>({
     width: 100,
     trim: false,
+    height: 1,
     colors: {},
-    base: 'none',
-    baseHeight: 1,
+    base: 'rectangle',
     baseMargin: 0,
     basePlacement: 'cutout',
     baseColor: '#ffffff',
@@ -385,10 +394,20 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
 
               <div className="flex flex-col gap-3">
                 <div className="flex items-end justify-between gap-3">
-                  <h3 className="font-medium">Colors</h3>
-                  <span className="text-muted-foreground w-28 text-sm" aria-hidden>
-                    Height (mm)
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="font-medium">Colors</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Colors without a height of their own use this one.
+                    </p>
+                  </div>
+                  <div className="w-28 shrink-0">
+                    <NumberField
+                      label="Height (mm)"
+                      value={settings.height}
+                      min={0.1}
+                      onChange={(height) => update({ height })}
+                    />
+                  </div>
                 </div>
                 {regions.map(({ color, area }) => {
                   const colorSettings = settings.colors[color] ?? defaultColorSettings;
@@ -420,8 +439,10 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                           label={`Height of ${color} (mm)`}
                           hideLabel
                           value={colorSettings.height}
+                          placeholder={format(settings.height, 2)}
                           min={0.1}
                           onChange={(height) => setColor({ height })}
+                          onClear={() => setColor({ height: undefined })}
                         />
                       </div>
                     </div>
@@ -500,8 +521,10 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                       <NumberField
                         label="Thickness (mm)"
                         value={settings.baseHeight}
+                        placeholder={format(settings.height, 2)}
                         min={0.1}
                         onChange={(baseHeight) => update({ baseHeight })}
+                        onClear={() => update({ baseHeight: undefined })}
                       />
                       {settings.base === 'rectangle' && (
                         <NumberField
