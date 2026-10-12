@@ -13,8 +13,16 @@ import {
 } from '@workspace/ui/components/select';
 import { Switch } from '@workspace/ui/components/switch';
 import { cn } from '@workspace/ui/lib/utils';
-import { DownloadIcon, FileUpIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
-import { type ChangeEvent, type DragEvent, useEffect, useId, useMemo, useState } from 'react';
+import { CircleCheckIcon, DownloadIcon, FileUpIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
+import {
+  type ChangeEvent,
+  type DragEvent,
+  useDeferredValue,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
 import {
   type BaseKind,
   bounds,
@@ -23,12 +31,15 @@ import {
   fileName,
   type ModelSettings,
   type Part,
+  printedRegions,
+  toMillimeters,
   toStl,
   toZip,
 } from './model';
 import { ModelPreview } from './model-preview';
 import { parseSvg } from './parse-svg';
 import { visibleRegions } from './regions';
+import { defaultLineWidth, findThinAreas, unprintableWidth } from './thin-areas';
 
 interface SvgFile {
   id: string;
@@ -126,6 +137,7 @@ const baseItems: { value: BaseKind; label: string }[] = [
 function NumberField({
   label,
   hideLabel = false,
+  hint,
   value,
   onChange,
   min = 0,
@@ -133,6 +145,7 @@ function NumberField({
 }: {
   label: string;
   hideLabel?: boolean;
+  hint?: string;
   value: number;
   onChange: (value: number) => void;
   min?: number;
@@ -157,11 +170,39 @@ function NumberField({
           if (Number.isFinite(number) && number >= min) onChange(number);
         }}
       />
+      {hint && <p className="text-muted-foreground text-sm">{hint}</p>}
     </div>
   );
 }
 
-const format = (value: number) => value.toLocaleString('en', { maximumFractionDigits: 1 });
+function SwitchField({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  const id = useId();
+
+  return (
+    <div className="flex items-center gap-3">
+      <Switch id={id} checked={checked} onCheckedChange={onChange} />
+      <div className="flex flex-col gap-0.5">
+        <Label htmlFor={id}>{label}</Label>
+        <span className="text-muted-foreground text-sm">{hint}</span>
+      </div>
+    </div>
+  );
+}
+
+const format = (value: number, maximumFractionDigits = 1) =>
+  value.toLocaleString('en', { maximumFractionDigits });
+
+const formatShare = (share: number) => (share < 0.001 ? '<0.1' : format(share * 100));
 
 function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
   const result = useMemo(() => {
@@ -182,11 +223,39 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
     baseMargin: 2,
     baseCutout: false,
     baseColor: '#ffffff',
+    lineWidth: defaultLineWidth,
+    removeUnprintable: false,
+    thicken: false,
   });
   const update = (changes: Partial<ModelSettings>) =>
     setSettings((current) => ({ ...current, ...changes }));
+  const [showThin, setShowThin] = useState(true);
 
-  const parts = useMemo(() => buildParts(regions, settings), [regions, settings]);
+  // Keeps the inputs responsive while the geometry is computed
+  const deferred = useDeferredValue(settings);
+  const { width, colors, lineWidth, removeUnprintable, thicken } = deferred;
+  const printed = useMemo(
+    () =>
+      printedRegions(toMillimeters(regions, width), {
+        colors,
+        lineWidth,
+        removeUnprintable,
+        thicken,
+      }),
+    [regions, width, colors, lineWidth, removeUnprintable, thicken],
+  );
+  const thin = useMemo(() => findThinAreas(printed, lineWidth), [printed, lineWidth]);
+  const parts = useMemo(() => buildParts(printed, deferred), [printed, deferred]);
+  const highlights = useMemo(
+    () =>
+      showThin
+        ? thin.map(({ color, shape }) => ({
+            shape,
+            z: (colors[color] ?? defaultColorSettings).height,
+          }))
+        : [],
+    [showThin, thin, colors],
+  );
   useEffect(
     () => () => {
       for (const { geometry } of parts) geometry.dispose();
@@ -222,7 +291,7 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
           <p className="text-muted-foreground">This SVG has no filled shapes to convert.</p>
         ) : (
           <div className="grid gap-8 md:grid-cols-2">
-            <ModelPreview parts={parts} />
+            <ModelPreview parts={parts} highlights={highlights} />
 
             <div className="flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-4">
@@ -286,6 +355,63 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
               </div>
 
               <div className="flex flex-col gap-3">
+                <h3 className="font-medium">Thin areas</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    label="Line width (mm)"
+                    value={settings.lineWidth}
+                    min={0.1}
+                    step={0.01}
+                    onChange={(lineWidth) => update({ lineWidth })}
+                  />
+                  <p className="text-muted-foreground self-end pb-2 text-sm">
+                    PrusaSlicer prints 0.45 mm wide lines with a 0.4 mm nozzle
+                  </p>
+                </div>
+                {thin.length === 0 ? (
+                  <p className="flex items-center gap-2 text-sm">
+                    <CircleCheckIcon className="size-4 shrink-0 text-green-600" aria-hidden />
+                    Everything is at least one line wide.
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-1 text-sm">
+                    {thin.map(({ color, share }) => (
+                      <li key={color} className="flex items-center gap-2">
+                        <TriangleAlertIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
+                        <span
+                          className="size-3 shrink-0 rounded-full border"
+                          style={{ backgroundColor: color }}
+                          aria-hidden
+                        />
+                        <span>
+                          <span className="font-mono">{color}</span>: {formatShare(share)}% is
+                          thinner than {format(lineWidth, 2)} mm
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <SwitchField
+                  label="Show thin areas"
+                  hint="Marks them in magenta in the preview"
+                  checked={showThin}
+                  onChange={setShowThin}
+                />
+                <SwitchField
+                  label="Remove unprintable details"
+                  hint={`Merges details thinner than ${format(unprintableWidth(settings.lineWidth), 2)} mm, which slicers skip, into the neighboring color`}
+                  checked={settings.removeUnprintable}
+                  onChange={(removeUnprintable) => update({ removeUnprintable })}
+                />
+                <SwitchField
+                  label="Thicken thin areas"
+                  hint="Widens them to one line, taking the space from the neighboring colors. Changes the look."
+                  checked={settings.thicken}
+                  onChange={(thicken) => update({ thicken })}
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
                 <h3 className="font-medium">Base plate</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
@@ -323,18 +449,13 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                         />
                       )}
                       {settings.base === 'rectangle' && (
-                        <div className="col-span-2 flex items-center gap-3">
-                          <Switch
-                            id={`${file.id}-base-cutout`}
+                        <div className="col-span-2">
+                          <SwitchField
+                            label="Cut out the content"
+                            hint="The colors fill holes in the plate instead of sitting on top of it"
                             checked={settings.baseCutout}
-                            onCheckedChange={(baseCutout) => update({ baseCutout })}
+                            onChange={(baseCutout) => update({ baseCutout })}
                           />
-                          <div className="flex flex-col gap-0.5">
-                            <Label htmlFor={`${file.id}-base-cutout`}>Cut out the content</Label>
-                            <span className="text-muted-foreground text-sm">
-                              The colors fill holes in the plate instead of sitting on top of it
-                            </span>
-                          </div>
                         </div>
                       )}
                       <div className="flex flex-col gap-2">

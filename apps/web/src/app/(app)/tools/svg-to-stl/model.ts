@@ -4,6 +4,7 @@ import { type BufferGeometry, ExtrudeGeometry, Mesh, Path, Shape, Vector2 } from
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 import { type Area, bounds as boundsOf, difference, polygons, union } from './geometry';
 import type { ColorRegion } from './regions';
+import { removeUnprintable, thickenThinAreas } from './thin-areas';
 
 export interface ColorSettings {
   enabled: boolean;
@@ -28,6 +29,12 @@ export interface ModelSettings {
    */
   baseCutout: boolean;
   baseColor: string;
+  /** The width of one printed line, in mm */
+  lineWidth: number;
+  /** Merge details slicers would drop into the neighboring colors */
+  removeUnprintable: boolean;
+  /** Widen areas thinner than one line */
+  thicken: boolean;
 }
 
 export interface Part {
@@ -55,64 +62,82 @@ function toPath<T extends Path>(path: T, points: PathD) {
   return path;
 }
 
-/** Extrudes `shape` (in mm) from `z` to `z + depth` */
-function extrude(shape: Area, z: number, depth: number) {
-  const shapes = polygons(shape).map(({ outer, holes }) => {
+/** three.js shapes (with holes) for an area */
+export const toShapes = (shape: Area) =>
+  polygons(shape).map(({ outer, holes }) => {
     const result = toPath(new Shape(), outer);
     result.holes = holes.map((hole) => toPath(new Path(), hole));
     return result;
   });
 
-  const geometry = new ExtrudeGeometry(shapes, { depth, bevelEnabled: false, curveSegments: 1 });
+/** Extrudes `shape` (in mm) from `z` to `z + depth` */
+function extrude(shape: Area, z: number, depth: number) {
+  const geometry = new ExtrudeGeometry(toShapes(shape), {
+    depth,
+    bevelEnabled: false,
+    curveSegments: 1,
+  });
   geometry.translate(0, 0, z);
   return geometry;
 }
 
-/**
- * One solid per enabled color (and the base), in mm. All parts share one coordinate system, so
- * slicers line them up when they're loaded as parts of one object.
- */
-export function buildParts(regions: ColorRegion[], settings: ModelSettings): Part[] {
+/** Scales the regions to `width` (in mm), with the origin at the bottom left */
+export function toMillimeters(regions: ColorRegion[], width: number): ColorRegion[] {
   const box = bounds(regions);
-  const scale = box.width > 0 ? settings.width / box.width : 1;
-  // SVG coordinates grow downwards
-  const toMillimeters = (shape: Area): Area =>
-    shape.map((path) =>
-      path.map(({ x, y }) => ({ x: (x - box.minX) * scale, y: (box.maxY - y) * scale })),
-    );
+  const scale = box.width > 0 ? width / box.width : 1;
 
-  const enabled = regions.filter(
+  return regions.map((region) => ({
+    ...region,
+    // SVG coordinates grow downwards
+    shape: region.shape.map((path) =>
+      path.map(({ x, y }) => ({ x: (x - box.minX) * scale, y: (box.maxY - y) * scale })),
+    ),
+    area: region.area * scale ** 2,
+  }));
+}
+
+/** The enabled colors (in mm), adjusted for printing */
+export function printedRegions(
+  regions: ColorRegion[],
+  settings: Pick<ModelSettings, 'colors' | 'lineWidth' | 'removeUnprintable' | 'thicken'>,
+) {
+  let result = regions.filter(
     ({ color }) => (settings.colors[color] ?? defaultColorSettings).enabled,
   );
-  const parts: Part[] = enabled.map(({ color, shape }) => ({
+  if (settings.removeUnprintable) result = removeUnprintable(result, settings.lineWidth);
+  if (settings.thicken) result = thickenThinAreas(result, settings.lineWidth);
+
+  return result;
+}
+
+/**
+ * One solid per region (in mm) and the base. All parts share one coordinate system, so slicers
+ * line them up when they're loaded as parts of one object.
+ */
+export function buildParts(regions: ColorRegion[], settings: ModelSettings): Part[] {
+  const parts: Part[] = regions.map(({ color, shape }) => ({
     name: color.slice(1),
     color,
-    geometry: extrude(
-      toMillimeters(shape),
-      0,
-      (settings.colors[color] ?? defaultColorSettings).height,
-    ),
+    geometry: extrude(shape, 0, (settings.colors[color] ?? defaultColorSettings).height),
   }));
 
-  if (settings.base !== 'none' && enabled.length > 0 && settings.baseHeight > 0) {
-    const content = () => union(...enabled.map(({ shape }) => toMillimeters(shape)));
+  if (settings.base !== 'none' && regions.length > 0 && settings.baseHeight > 0) {
+    const content = union(...regions.map(({ shape }) => shape));
     const cutout = settings.base === 'rectangle' && settings.baseCutout;
 
-    let baseShape: Area;
-    if (settings.base === 'outline') {
-      baseShape = content();
-    } else {
+    let baseShape = content;
+    if (settings.base === 'rectangle') {
       const margin = settings.baseMargin;
-      const [width, height] = [box.width * scale, box.height * scale];
+      const box = bounds(regions);
       baseShape = [
         [
-          { x: -margin, y: -margin },
-          { x: width + margin, y: -margin },
-          { x: width + margin, y: height + margin },
-          { x: -margin, y: height + margin },
+          { x: box.minX - margin, y: box.minY - margin },
+          { x: box.maxX + margin, y: box.minY - margin },
+          { x: box.maxX + margin, y: box.maxY + margin },
+          { x: box.minX - margin, y: box.maxY + margin },
         ],
       ];
-      if (cutout) baseShape = difference(baseShape, content());
+      if (cutout) baseShape = difference(baseShape, content);
     }
     parts.unshift({
       name: 'base',

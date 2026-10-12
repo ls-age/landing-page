@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type Area, areaOf, union } from './geometry';
+import { type Area, areaOf, offset, union } from './geometry';
 
 const square = (x: number, y: number, size: number): Area => [
   [
@@ -11,9 +11,9 @@ const square = (x: number, y: number, size: number): Area => [
 ];
 
 describe('union', () => {
-  test('merges overlapping areas with opposite orientations', () => {
-    const reversed = square(5, 5, 10).map((path) => [...path].reverse());
+  test('merges overlapping offsets', () => {
+    const grown = offset(square(10, 0, 10), 1);
 
-    expect(areaOf(union(square(0, 0, 10), reversed))).toBe(175);
+    expect(areaOf(union(square(0, 0, 10), grown))).toBeCloseTo(100 + areaOf(grown) - 10, 6);
   });
 });

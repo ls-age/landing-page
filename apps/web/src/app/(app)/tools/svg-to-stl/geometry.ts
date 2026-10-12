@@ -12,11 +12,13 @@ import {
   type PathsD,
   type PolyPathD,
   PolyTreeD,
+  simplifyPathsD,
 } from 'clipper2-ts';
 
 /**
- * A 2D area: closed paths (Clipper2's `PathsD`) filled with the nonzero rule, so outlines and
- * holes have opposite orientations
+ * A 2D area: closed paths (Clipper2's `PathsD`) filled with the nonzero rule. All areas from the
+ * functions here are oriented the same way (outlines one way, holes the other), so their paths
+ * can be merged without overlaps cancelling each other out.
  */
 export type Area = PathsD;
 
@@ -27,20 +29,13 @@ const PRECISION = 6;
 export const fill = (paths: PathsD, fillRule = FillRule.NonZero): Area =>
   booleanOpD(ClipType.Union, paths, null, fillRule, PRECISION); // eslint-disable-line unicorn/no-null
 
-/**
- * Merges areas. Each one is filled separately: concatenating their paths would let overlapping
- * paths with opposite orientations cancel each other out.
- */
-export function union(...areas: Area[]): Area {
-  let result: Area = [];
-  for (const area of areas) {
-    result = booleanOpD(ClipType.Union, result, area, FillRule.NonZero, PRECISION);
-  }
-  return result;
-}
+export const union = (...areas: Area[]): Area => fill(areas.flat());
 
 export const difference = (area: Area, clip: Area): Area =>
   clip.length > 0 ? booleanOpD(ClipType.Difference, area, clip, FillRule.NonZero, PRECISION) : area;
+
+export const intersection = (area: Area, clip: Area): Area =>
+  booleanOpD(ClipType.Intersection, area, clip, FillRule.NonZero, PRECISION);
 
 /** Grows (`delta` > 0) or shrinks (`delta` < 0) an area, or turns open paths into strokes */
 export const offset = (
@@ -48,7 +43,22 @@ export const offset = (
   delta: number,
   { join = JoinType.Round, end = EndType.Polygon, miterLimit = 2 } = {},
 ): Area =>
-  inflatePathsD(paths, delta, join, end, miterLimit, PRECISION, Math.abs(delta) / 50 || undefined);
+  // Clipper2 orients offsets the other way than the results of boolean operations
+  fill(
+    inflatePathsD(
+      paths,
+      delta,
+      join,
+      end,
+      miterLimit,
+      PRECISION,
+      Math.abs(delta) / 50 || undefined,
+    ),
+  );
+
+/** Removes vertices that deviate less than `tolerance` from a straight outline */
+export const simplify = (area: Area, tolerance: number): Area =>
+  fill(simplifyPathsD(area, tolerance, true));
 
 export const areaOf = (area: Area) => Math.abs(areaPathsD(area));
 

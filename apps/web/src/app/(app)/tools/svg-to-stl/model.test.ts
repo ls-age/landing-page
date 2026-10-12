@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { Box3 } from 'three';
-import { buildParts, type ModelSettings } from './model';
+import { buildParts, type ModelSettings, toMillimeters } from './model';
 import { visibleRegions } from './regions';
 
 const regions = visibleRegions([
@@ -25,10 +25,15 @@ const settings: ModelSettings = {
   baseMargin: 5,
   baseCutout: false,
   baseColor: '#ffffff',
+  lineWidth: 0.45,
+  removeUnprintable: false,
+  thicken: false,
 };
 
 const baseOf = (changes: Partial<ModelSettings>) => {
-  const base = buildParts(regions, { ...settings, ...changes }).find(({ name }) => name === 'base');
+  const base = buildParts(toMillimeters(regions, 10), { ...settings, ...changes }).find(
+    ({ name }) => name === 'base',
+  );
   base?.geometry.computeBoundingBox();
   return base?.geometry.boundingBox ?? new Box3();
 };
