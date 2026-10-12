@@ -2,6 +2,7 @@ import type { PayloadRequest } from 'payload';
 import { z } from 'zod';
 import type { Post } from '@/__generated__/payload-types';
 import { codeLanguages } from '@/lib/code-languages';
+import { tools } from '@/lib/tools';
 import { validatePostContent } from './post-content';
 import { examplePostContent } from './post-content-example';
 
@@ -141,7 +142,12 @@ Markdown, HTML or plain strings are rejected.
 - \`block\` with \`fields.blockType\` "Code": a code block with \`fields.code\` and
   \`fields.language\`, one of ${Object.keys(codeLanguages)
     .map((language) => `"${language}"`)
-    .join(', ')}. Every block needs a unique \`fields.id\` (24 hex characters).
+    .join(', ')}.
+- \`block\` with \`fields.blockType\` "Tool": embeds a tool that runs in the browser, with
+  \`fields.tool\` one of ${Object.keys(tools)
+    .map((tool) => `"${tool}"`)
+    .join(', ')}. A post about a tool embeds it (usually after a short introduction).
+- Every block needs a unique \`fields.id\` (24 hex characters).
 - \`upload\` with \`relationTo\` "media" and the media id as \`value\` (an image).
 
 Keep \`version\`, \`format\`, \`indent\` and \`direction\` as in the example. Every link also needs

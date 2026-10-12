@@ -1,3 +1,4 @@
+import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -30,8 +31,9 @@ export default async function BlogPage() {
           <Link key={post.id} href={`/blog/${post.slug}`}>
             <Card className="hover:bg-muted/50 transition-colors">
               <CardHeader>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground flex items-center gap-2 text-sm">
                   <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                  {post.tools.length > 0 && <Badge variant="secondary">Tool</Badge>}
                 </p>
                 <CardTitle className="text-xl">{post.title}</CardTitle>
                 <CardDescription>{post.description}</CardDescription>

@@ -38,6 +38,17 @@ describe('validatePostContent', () => {
     expect(problem).toStartWith('root.children[0]: unknown code language "cobol"');
   });
 
+  test('accepts tool blocks of known tools only', async () => {
+    const block = examplePostContent.root.children[2];
+    const tool = (name: string) => ({
+      ...block,
+      fields: { id: block.fields.id, blockType: 'Tool', tool: name },
+    });
+    expect(await validatePostContent(withChildren([tool('svg-to-stl')]), payload)).toEqual([]);
+    const [problem] = await validatePostContent(withChildren([tool('calculator')]), payload);
+    expect(problem).toStartWith('root.children[0]: unknown tool "calculator"');
+  });
+
   test('rejects node types the editor does not know', async () => {
     const table = { type: 'table', version: 1, children: [] };
     const problems = await validatePostContent(withChildren([paragraph, table]), payload);

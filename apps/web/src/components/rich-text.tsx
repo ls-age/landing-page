@@ -8,6 +8,8 @@ import {
 } from '@payloadcms/richtext-lexical/react';
 import slugify from 'slugify';
 import { CodeBlock } from '@/components/code-block';
+import { PostTool } from '@/components/post-tool';
+import { isTool } from '@/lib/tools';
 import { collectionPath } from '@/payload/helpers';
 
 /** The id of a heading, for links to it (`#…`) */
@@ -37,6 +39,13 @@ const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
     Code: ({ node }: { node: SerializedBlockNode<{ code?: string; language?: string }> }) => (
       <CodeBlock code={node.fields.code ?? ''} language={node.fields.language} />
     ),
+    // Outside the Typeset styles, which are for prose
+    Tool: ({ node }: { node: SerializedBlockNode<{ tool?: string }> }) =>
+      isTool(node.fields.tool) ? (
+        <div className="not-typeset my-8">
+          <PostTool tool={node.fields.tool} />
+        </div>
+      ) : null, // eslint-disable-line unicorn/no-null
   },
 });
 

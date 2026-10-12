@@ -13,6 +13,7 @@ import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { codeLanguages } from './lib/code-languages';
 import { site } from './lib/site';
+import { ToolBlock } from './payload/blocks/tool';
 import { Media } from './payload/collections/media';
 import { Posts } from './payload/collections/posts';
 import { Users } from './payload/collections/users';
@@ -43,9 +44,12 @@ export default buildConfig({
       // The page title is the only h1
       ...defaultFeatures.filter((feature) => feature.key !== 'heading'),
       HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-      // Highlighted with Shiki when rendered (`components/code-block.tsx`)
       BlocksFeature({
-        blocks: [CodeBlock({ languages: codeLanguages, defaultLanguage: 'typescript' })],
+        blocks: [
+          // Highlighted with Shiki when rendered (`components/code-block.tsx`)
+          CodeBlock({ languages: codeLanguages, defaultLanguage: 'typescript' }),
+          ToolBlock,
+        ],
       }),
     ],
   }),
