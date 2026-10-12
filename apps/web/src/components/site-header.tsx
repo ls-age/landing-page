@@ -6,6 +6,7 @@ import { site } from '@/lib/site';
 const links = [
   { href: '/blog', label: 'Blog' },
   { href: '/open-source', label: 'Open Source' },
+  { href: '/tools', label: 'Tools' },
   { href: 'https://hechenbros.com', label: 'Hechenbros' },
 ];
 

@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getRepositories } from '@/lib/github';
 import { getPosts } from '@/lib/posts';
 import { absoluteUrl } from '@/lib/site';
+import { tools, toolUrl } from '@/lib/tools';
 
 export const revalidate = 3600;
 
@@ -20,5 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: absoluteUrl(`/open-source/${repo.nameWithOwner}`),
       lastModified: repo.pushedAt,
     })),
+    { url: absoluteUrl('/tools') },
+    ...tools.map((tool) => ({ url: toolUrl(tool) })),
   ];
 }
