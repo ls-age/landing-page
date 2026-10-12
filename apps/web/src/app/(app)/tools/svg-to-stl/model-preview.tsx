@@ -157,7 +157,7 @@ export function ModelPreview({
   return (
     <div
       ref={container}
-      className="bg-muted/50 aspect-square w-full cursor-grab overflow-hidden rounded-3xl active:cursor-grabbing"
+      className="bg-muted/50 aspect-square w-full cursor-grab overflow-hidden active:cursor-grabbing"
       style={{ backgroundColor: background }}
     />
   );
