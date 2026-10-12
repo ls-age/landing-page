@@ -21,7 +21,7 @@ export function ContactDialog({
 }) {
   return (
     <Dialog>
-      <DialogTrigger render={<Button size={size} />}>{label}</DialogTrigger>
+      <DialogTrigger render={<Button className="drop-shadow" size={size} />}>{label}</DialogTrigger>
       <DialogContent className="text-center">
         <DialogHeader className="items-center">
           <DialogTitle>Interested in working together?</DialogTitle>
