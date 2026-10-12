@@ -25,6 +25,7 @@ import {
 } from 'react';
 import {
   type BaseKind,
+  type BasePlacement,
   bounds,
   buildParts,
   defaultColorSettings,
@@ -127,6 +128,11 @@ export function SvgToStl() {
   );
 }
 
+const placementItems: { value: BasePlacement; label: string }[] = [
+  { value: 'cutout', label: 'Cut out' },
+  { value: 'below', label: 'Below' },
+];
+
 const baseItems: { value: BaseKind; label: string }[] = [
   { value: 'none', label: 'None' },
   { value: 'outline', label: 'Outline' },
@@ -171,6 +177,42 @@ function NumberField({
         }}
       />
       {hint && <p className="text-muted-foreground text-sm">{hint}</p>}
+    </div>
+  );
+}
+
+function OptionField<T extends string>({
+  label,
+  items,
+  value,
+  onChange,
+}: {
+  label: string;
+  items: { value: T; label: string }[];
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  const id = useId();
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label id={id}>{label}</Label>
+      <Select
+        items={items}
+        value={value}
+        onValueChange={(selected) => selected && onChange(selected)}
+      >
+        <SelectTrigger className="w-full" aria-labelledby={id}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -221,7 +263,7 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
     base: 'none',
     baseHeight: 1,
     baseMargin: 2,
-    baseCutout: false,
+    basePlacement: 'cutout',
     baseColor: '#ffffff',
     lineWidth: defaultLineWidth,
     removeUnprintable: false,
@@ -414,25 +456,12 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
               <div className="flex flex-col gap-3">
                 <h3 className="font-medium">Base plate</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-2">
-                    <Label>Shape</Label>
-                    <Select
-                      items={baseItems}
-                      value={settings.base}
-                      onValueChange={(base) => base && update({ base })}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {baseItems.map(({ value, label }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <OptionField
+                    label="Shape"
+                    items={baseItems}
+                    value={settings.base}
+                    onChange={(base) => update({ base })}
+                  />
                   {settings.base !== 'none' && (
                     <>
                       <NumberField
@@ -449,14 +478,12 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                         />
                       )}
                       {settings.base === 'rectangle' && (
-                        <div className="col-span-2">
-                          <SwitchField
-                            label="Cut out the content"
-                            hint="The colors fill holes in the plate instead of sitting on top of it"
-                            checked={settings.baseCutout}
-                            onChange={(baseCutout) => update({ baseCutout })}
-                          />
-                        </div>
+                        <OptionField
+                          label="Placement"
+                          items={placementItems}
+                          value={settings.basePlacement}
+                          onChange={(basePlacement) => update({ basePlacement })}
+                        />
                       )}
                       <div className="flex flex-col gap-2">
                         <Label htmlFor={`${file.id}-base-color`}>Preview color</Label>

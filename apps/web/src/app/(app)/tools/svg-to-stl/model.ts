@@ -14,6 +14,8 @@ export interface ColorSettings {
 
 export type BaseKind = 'none' | 'outline' | 'rectangle';
 
+export type BasePlacement = 'cutout' | 'below';
+
 export interface ModelSettings {
   /** The width of the whole model, in mm */
   width: number;
@@ -24,10 +26,10 @@ export interface ModelSettings {
   /** The margin around a rectangular base, in mm */
   baseMargin: number;
   /**
-   * Cut the content out of a rectangular base, which then sits level with the colors (an inlay)
-   * instead of below them
+   * Where a rectangular base goes: level with the colors, with the content cut out of it (an
+   * inlay), or below them
    */
-  baseCutout: boolean;
+  basePlacement: BasePlacement;
   baseColor: string;
   /** The width of one printed line, in mm */
   lineWidth: number;
@@ -123,7 +125,7 @@ export function buildParts(regions: ColorRegion[], settings: ModelSettings): Par
 
   if (settings.base !== 'none' && regions.length > 0 && settings.baseHeight > 0) {
     const content = union(...regions.map(({ shape }) => shape));
-    const cutout = settings.base === 'rectangle' && settings.baseCutout;
+    const cutout = settings.base === 'rectangle' && settings.basePlacement === 'cutout';
 
     let baseShape = content;
     if (settings.base === 'rectangle') {

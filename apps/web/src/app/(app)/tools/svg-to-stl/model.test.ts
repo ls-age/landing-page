@@ -23,7 +23,7 @@ const settings: ModelSettings = {
   base: 'rectangle',
   baseHeight: 2,
   baseMargin: 5,
-  baseCutout: false,
+  basePlacement: 'below',
   baseColor: '#ffffff',
   lineWidth: 0.45,
   removeUnprintable: false,
@@ -49,13 +49,13 @@ describe('buildParts', () => {
   });
 
   test('puts a base plate with the content cut out level with the colors', () => {
-    const box = baseOf({ baseCutout: true });
+    const box = baseOf({ basePlacement: 'cutout' });
 
     expect([box.min.z, box.max.z]).toEqual([0, 2]);
   });
 
   test('ignores the cutout for outline base plates', () => {
-    const box = baseOf({ base: 'outline', baseCutout: true });
+    const box = baseOf({ base: 'outline', basePlacement: 'cutout' });
 
     expect([box.min.z, box.max.z]).toEqual([-2, 0]);
   });
