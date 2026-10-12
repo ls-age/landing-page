@@ -1,5 +1,11 @@
 'use client';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@workspace/ui/components/accordion';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
@@ -17,6 +23,7 @@ import { CircleCheckIcon, DownloadIcon, FileUpIcon, TriangleAlertIcon, XIcon } f
 import {
   type ChangeEvent,
   type DragEvent,
+  type ReactNode,
   useDeferredValue,
   useEffect,
   useId,
@@ -147,6 +154,7 @@ const baseItems: { value: BaseKind; label: string }[] = [
 function NumberField({
   label,
   hideLabel = false,
+  inline = false,
   hint,
   value,
   placeholder,
@@ -157,6 +165,8 @@ function NumberField({
 }: {
   label: string;
   hideLabel?: boolean;
+  /** Puts the label next to the input */
+  inline?: boolean;
   hint?: string;
   value: number | undefined;
   placeholder?: string;
@@ -170,12 +180,13 @@ function NumberField({
   const [initialValue] = useState(value);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn('flex gap-2', inline ? 'items-center' : 'flex-col')}>
       <Label htmlFor={id} className={cn(hideLabel && 'sr-only')}>
         {label}
       </Label>
       <Input
         id={id}
+        className={cn(inline && 'w-24')}
         type="number"
         inputMode="decimal"
         min={min}
@@ -188,18 +199,50 @@ function NumberField({
           else if (event.target.value === '') onClear?.();
         }}
       />
-      {hint && <p className="text-muted-foreground text-sm">{hint}</p>}
+      {hint && <div className="text-muted-foreground text-sm">{hint}</div>}
     </div>
+  );
+}
+
+/** An accordion item with a summary in its trigger and optional controls next to it */
+function Section({
+  value,
+  title,
+  actions,
+  children,
+}: {
+  value: string;
+  title: ReactNode;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <AccordionItem value={value}>
+      <div className="relative">
+        <AccordionTrigger className="items-center">{title}</AccordionTrigger>
+        {/*
+         * Controls can't be inside the trigger (a button), so they're laid over it, between the
+         * title and the chevron
+         */}
+        {actions && (
+          <div className="absolute inset-y-0 right-10 flex items-center gap-2">{actions}</div>
+        )}
+      </div>
+      <AccordionContent className="flex flex-col gap-4">{children}</AccordionContent>
+    </AccordionItem>
   );
 }
 
 function OptionField<T extends string>({
   label,
+  inline = false,
   items,
   value,
   onChange,
 }: {
   label: string;
+  /** Puts the label next to the select */
+  inline?: boolean;
   items: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
@@ -207,14 +250,14 @@ function OptionField<T extends string>({
   const id = useId();
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn('flex gap-2', inline ? 'items-center' : 'flex-col')}>
       <Label id={id}>{label}</Label>
       <Select
         items={items}
         value={value}
         onValueChange={(selected) => selected && onChange(selected)}
       >
-        <SelectTrigger className="w-full" aria-labelledby={id}>
+        <SelectTrigger className={inline ? 'w-32' : 'w-full'} aria-labelledby={id}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -275,7 +318,7 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
 
   const [settings, setSettings] = useState<ModelSettings>({
     width: 100,
-    trim: false,
+    trim: true,
     height: 1,
     colors: {},
     base: 'rectangle',
@@ -323,6 +366,13 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
 
   const height = frame.width > 0 ? (frame.height / frame.width) * settings.width : 0;
   const totalArea = regions.reduce((sum, { area }) => sum + area, 0);
+  const selectedCount = regions.filter(
+    ({ color }) => (settings.colors[color] ?? defaultColorSettings).enabled,
+  ).length;
+  const fixes = [
+    settings.removeUnprintable && 'remove unprintable',
+    settings.thicken && 'thicken',
+  ].filter(Boolean);
 
   return (
     <Card>
@@ -348,7 +398,8 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
           <p className="text-muted-foreground">This SVG has no filled shapes to convert.</p>
         ) : (
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="flex flex-col gap-3">
+            {/* Stays in view while the settings scroll */}
+            <div className="flex flex-col gap-3 self-start md:sticky md:top-20">
               <ModelPreview parts={parts} highlights={highlights} background={background} />
               <div className="flex items-center gap-3">
                 <Label htmlFor={`${file.id}-background`}>Background</Label>
@@ -367,47 +418,55 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
               </div>
             </div>
 
-            <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-2 gap-4">
-                <NumberField
-                  label="Width (mm)"
-                  value={settings.width}
-                  min={1}
-                  step={1}
-                  onChange={(width) => update({ width })}
-                />
-                <div className="flex flex-col gap-2">
-                  <Label>Height (mm)</Label>
-                  <p className="flex h-9 items-center text-sm">{format(height)}</p>
+            <Accordion multiple defaultValue={['colors']}>
+              <Section value="size" title={`Size (${format(settings.width)} × ${format(height)})`}>
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    label="Width (mm)"
+                    value={settings.width}
+                    min={1}
+                    step={1}
+                    onChange={(width) => update({ width })}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Label>Height (mm)</Label>
+                    <div className="flex h-9 items-center">{format(height)}</div>
+                  </div>
                 </div>
                 {canvas && (
-                  <div className="col-span-2">
-                    <SwitchField
-                      label="Trim to the content"
-                      hint="Fits the model and base plate to the selected colors instead of the SVG's canvas"
-                      checked={settings.trim}
-                      onChange={(trim) => update({ trim })}
-                    />
-                  </div>
+                  <SwitchField
+                    label="Trim to the content"
+                    hint="Fits the model and base plate to the selected colors instead of the SVG's canvas"
+                    checked={settings.trim}
+                    onChange={(trim) => update({ trim })}
+                  />
                 )}
-              </div>
+              </Section>
 
-              <div className="flex flex-col gap-3">
+              <Section
+                value="colors"
+                title={
+                  selectedCount === regions.length
+                    ? `${regions.length} ${regions.length === 1 ? 'color' : 'colors'}`
+                    : `${selectedCount} of ${regions.length} colors`
+                }
+                actions={
+                  <NumberField
+                    label="Height"
+                    inline
+                    value={settings.height}
+                    min={0.1}
+                    onChange={(height) => update({ height })}
+                  />
+                }
+              >
                 <div className="flex items-end justify-between gap-3">
-                  <div className="flex flex-col gap-0.5">
-                    <h3 className="font-medium">Colors</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Colors without a height of their own use this one.
-                    </p>
+                  <div className="text-muted-foreground">
+                    Heights are in mm. Colors without their own use the one above.
                   </div>
-                  <div className="w-28 shrink-0">
-                    <NumberField
-                      label="Height (mm)"
-                      value={settings.height}
-                      min={0.1}
-                      onChange={(height) => update({ height })}
-                    />
-                  </div>
+                  <span className="w-24 shrink-0 font-medium" aria-hidden>
+                    Height
+                  </span>
                 </div>
                 {regions.map(({ color, area }) => {
                   const colorSettings = settings.colors[color] ?? defaultColorSettings;
@@ -428,13 +487,13 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                         style={{ backgroundColor: color }}
                         aria-hidden
                       />
-                      <div className="flex min-w-0 flex-1 flex-col text-sm">
+                      <div className="flex min-w-0 flex-1 flex-col">
                         <span className="font-mono">{color}</span>
                         <span className="text-muted-foreground">
                           {format((area / totalArea) * 100)}% of the area
                         </span>
                       </div>
-                      <div className="w-28">
+                      <div className="w-24">
                         <NumberField
                           label={`Height of ${color} (mm)`}
                           hideLabel
@@ -448,10 +507,19 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                     </div>
                   );
                 })}
-              </div>
+              </Section>
 
-              <div className="flex flex-col gap-3">
-                <h3 className="font-medium">Thin areas</h3>
+              <Section
+                value="thin-areas"
+                title={
+                  <span className="flex items-center gap-2">
+                    {thin.length > 0 && (
+                      <TriangleAlertIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
+                    )}
+                    {fixes.length > 0 ? `Thin areas (${fixes.join(', ')})` : 'Thin areas'}
+                  </span>
+                }
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     label="Line width (mm)"
@@ -460,17 +528,17 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                     step={0.01}
                     onChange={(lineWidth) => update({ lineWidth })}
                   />
-                  <p className="text-muted-foreground self-end pb-2 text-sm">
+                  <div className="text-muted-foreground self-end pb-2">
                     PrusaSlicer prints 0.45 mm wide lines with a 0.4 mm nozzle
-                  </p>
+                  </div>
                 </div>
                 {thin.length === 0 ? (
-                  <p className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2">
                     <CircleCheckIcon className="size-4 shrink-0 text-green-600" aria-hidden />
                     Everything is at least one line wide.
-                  </p>
+                  </div>
                 ) : (
-                  <ul className="flex flex-col gap-1 text-sm">
+                  <ul className="flex flex-col gap-1">
                     {thin.map(({ color, share }) => (
                       <li key={color} className="flex items-center gap-2">
                         <TriangleAlertIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
@@ -505,65 +573,68 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                   checked={settings.thicken}
                   onChange={(thicken) => update({ thicken })}
                 />
-              </div>
+              </Section>
 
-              <div className="flex flex-col gap-3">
-                <h3 className="font-medium">Base plate</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <Section
+                value="base-plate"
+                title="Base plate"
+                actions={
                   <OptionField
                     label="Shape"
+                    inline
                     items={baseItems}
                     value={settings.base}
                     onChange={(base) => update({ base })}
                   />
-                  {settings.base !== 'none' && (
-                    <>
+                }
+              >
+                {settings.base === 'none' ? (
+                  <div className="text-muted-foreground">No base plate, just the colors.</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <NumberField
+                      label="Thickness (mm)"
+                      value={settings.baseHeight}
+                      placeholder={format(settings.height, 2)}
+                      min={0.1}
+                      onChange={(baseHeight) => update({ baseHeight })}
+                      onClear={() => update({ baseHeight: undefined })}
+                    />
+                    {settings.base === 'rectangle' && (
                       <NumberField
-                        label="Thickness (mm)"
-                        value={settings.baseHeight}
-                        placeholder={format(settings.height, 2)}
-                        min={0.1}
-                        onChange={(baseHeight) => update({ baseHeight })}
-                        onClear={() => update({ baseHeight: undefined })}
+                        label="Margin (mm)"
+                        value={settings.baseMargin}
+                        onChange={(baseMargin) => update({ baseMargin })}
                       />
-                      {settings.base === 'rectangle' && (
-                        <NumberField
-                          label="Margin (mm)"
-                          value={settings.baseMargin}
-                          onChange={(baseMargin) => update({ baseMargin })}
-                        />
-                      )}
-                      {settings.base === 'rectangle' && (
-                        <OptionField
-                          label="Placement"
-                          items={placementItems}
-                          value={settings.basePlacement}
-                          onChange={(basePlacement) => update({ basePlacement })}
-                        />
-                      )}
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor={`${file.id}-base-color`}>Preview color</Label>
-                        <Input
-                          id={`${file.id}-base-color`}
-                          type="color"
-                          value={settings.baseColor}
-                          onChange={(event) => update({ baseColor: event.target.value })}
-                          className="p-1"
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                    )}
+                    {settings.base === 'rectangle' && (
+                      <OptionField
+                        label="Placement"
+                        items={placementItems}
+                        value={settings.basePlacement}
+                        onChange={(basePlacement) => update({ basePlacement })}
+                      />
+                    )}
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor={`${file.id}-base-color`}>Preview color</Label>
+                      <Input
+                        id={`${file.id}-base-color`}
+                        type="color"
+                        value={settings.baseColor}
+                        onChange={(event) => update({ baseColor: event.target.value })}
+                        className="p-1"
+                      />
+                    </div>
+                  </div>
+                )}
+              </Section>
 
-              <div className="flex flex-col gap-3">
-                <h3 className="font-medium">Download</h3>
-                <p className="text-muted-foreground text-sm">
-                  One STL per color. Load them together in your slicer as parts of one object and
-                  assign a filament to each.
-                </p>
-                <div className="flex flex-wrap gap-2">
+              <Section
+                value="download"
+                title="Download"
+                actions={
                   <Button
+                    size="sm"
                     disabled={parts.length === 0}
                     onClick={() =>
                       download(
@@ -576,6 +647,13 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                     <DownloadIcon data-icon="inline-start" />
                     All STLs (zip)
                   </Button>
+                }
+              >
+                <div className="text-muted-foreground">
+                  One STL per color. Load them together in your slicer as parts of one object and
+                  assign a filament to each.
+                </div>
+                <div className="flex flex-wrap gap-2">
                   {parts.map((part: Part) => (
                     <Button
                       key={part.name}
@@ -591,8 +669,8 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                     </Button>
                   ))}
                 </div>
-              </div>
-            </div>
+              </Section>
+            </Accordion>
           </div>
         )}
       </CardContent>
