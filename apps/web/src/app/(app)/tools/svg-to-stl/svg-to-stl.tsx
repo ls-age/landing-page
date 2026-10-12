@@ -511,7 +511,10 @@ function SvgModel({ file, inputId }: { file: SvgFile; inputId: string }) {
 
       {regions.length > 0 && (
         <Accordion multiple defaultValue={['colors']} className="self-start">
-          <Section value="size" title={`Size (${format(settings.width)} × ${format(height)})`}>
+          <Section
+            value="size"
+            title={`Size (${format(settings.width)} × ${format(height)}${settings.trim && canvas ? ', trimmed' : ''})`}
+          >
             <div className="grid grid-cols-2 gap-4">
               <NumberField
                 label="Width (mm)"
