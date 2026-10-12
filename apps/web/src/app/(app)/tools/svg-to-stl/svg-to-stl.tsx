@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@workspace/ui/components/accordion';
+import { Badge } from '@workspace/ui/components/badge';
 import { Button, buttonVariants } from '@workspace/ui/components/button';
 import { ButtonGroup, ButtonGroupSeparator } from '@workspace/ui/components/button-group';
 import {
@@ -294,11 +295,14 @@ function OptionField<T extends string>({
 function SwitchField({
   label,
   hint,
+  preview = false,
   checked,
   onChange,
 }: {
   label: string;
   hint: string;
+  /** Marks options that don't always work perfectly yet */
+  preview?: boolean;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
@@ -308,7 +312,10 @@ function SwitchField({
     <div className="flex items-center gap-3">
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
       <div className="flex flex-col gap-0.5">
-        <Label htmlFor={id}>{label}</Label>
+        <div className="flex items-center gap-2">
+          <Label htmlFor={id}>{label}</Label>
+          {preview && <Badge variant="outline">Preview</Badge>}
+        </div>
         <span className="text-muted-foreground text-sm">{hint}</span>
       </div>
     </div>
@@ -652,12 +659,14 @@ function SvgModel({ file, inputId }: { file: SvgFile; inputId: string }) {
             )}
             <SwitchField
               label="Remove unprintable details"
+              preview
               hint={`Merges details thinner than ${format(unprintableWidth(settings.lineWidth), 2)} mm, which slicers skip, into the neighboring color`}
               checked={settings.removeUnprintable}
               onChange={(removeUnprintable) => update({ removeUnprintable })}
             />
             <SwitchField
               label="Thicken thin areas"
+              preview
               hint="Widens them to one line, taking the space from the neighboring colors. Changes the look."
               checked={settings.thicken}
               onChange={(thicken) => update({ thicken })}
