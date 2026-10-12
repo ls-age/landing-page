@@ -1,7 +1,8 @@
+import type { PathD } from 'clipper2-ts';
 import { zipSync } from 'fflate';
-import polygonClipping, { type MultiPolygon, type Ring } from 'polygon-clipping';
 import { type BufferGeometry, ExtrudeGeometry, Mesh, Path, Shape, Vector2 } from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import { type Area, bounds as boundsOf, difference, polygons, union } from './geometry';
 import type { ColorRegion } from './regions';
 
 export interface ColorSettings {
@@ -38,27 +39,26 @@ export interface Part {
 export const defaultColorSettings: ColorSettings = { enabled: true, height: 1 };
 
 export function bounds(regions: ColorRegion[]) {
-  let [minX, minY, maxX, maxY] = [Infinity, Infinity, -Infinity, -Infinity];
-  for (const { shape } of regions) {
-    for (const [x, y] of shape.flat().flat()) {
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      maxX = Math.max(maxX, x);
-      maxY = Math.max(maxY, y);
-    }
-  }
-  return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
+  const { left, top, right, bottom } = boundsOf(regions.map(({ shape }) => shape));
+  return {
+    minX: left,
+    minY: top,
+    maxX: right,
+    maxY: bottom,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
-function toPath<T extends Path>(path: T, ring: Ring) {
-  path.setFromPoints(ring.map(([x, y]) => new Vector2(x, y)));
+function toPath<T extends Path>(path: T, points: PathD) {
+  path.setFromPoints(points.map(({ x, y }) => new Vector2(x, y)));
   return path;
 }
 
 /** Extrudes `shape` (in mm) from `z` to `z + depth` */
-function extrude(shape: MultiPolygon, z: number, depth: number) {
-  const shapes = shape.map(([outer, ...holes]) => {
-    const result = toPath(new Shape(), outer!);
+function extrude(shape: Area, z: number, depth: number) {
+  const shapes = polygons(shape).map(({ outer, holes }) => {
+    const result = toPath(new Shape(), outer);
     result.holes = holes.map((hole) => toPath(new Path(), hole));
     return result;
   });
@@ -76,9 +76,9 @@ export function buildParts(regions: ColorRegion[], settings: ModelSettings): Par
   const box = bounds(regions);
   const scale = box.width > 0 ? settings.width / box.width : 1;
   // SVG coordinates grow downwards
-  const toMillimeters = (shape: MultiPolygon): MultiPolygon =>
-    shape.map((polygon) =>
-      polygon.map((ring) => ring.map(([x, y]) => [(x - box.minX) * scale, (box.maxY - y) * scale])),
+  const toMillimeters = (shape: Area): Area =>
+    shape.map((path) =>
+      path.map(({ x, y }) => ({ x: (x - box.minX) * scale, y: (box.maxY - y) * scale })),
     );
 
   const enabled = regions.filter(
@@ -95,13 +95,10 @@ export function buildParts(regions: ColorRegion[], settings: ModelSettings): Par
   }));
 
   if (settings.base !== 'none' && enabled.length > 0 && settings.baseHeight > 0) {
-    const content = () => {
-      const shapes = enabled.map(({ shape }) => toMillimeters(shape));
-      return polygonClipping.union(shapes[0]!, ...shapes.slice(1));
-    };
+    const content = () => union(...enabled.map(({ shape }) => toMillimeters(shape)));
     const cutout = settings.base === 'rectangle' && settings.baseCutout;
 
-    let baseShape: MultiPolygon;
+    let baseShape: Area;
     if (settings.base === 'outline') {
       baseShape = content();
     } else {
@@ -109,15 +106,13 @@ export function buildParts(regions: ColorRegion[], settings: ModelSettings): Par
       const [width, height] = [box.width * scale, box.height * scale];
       baseShape = [
         [
-          [
-            [-margin, -margin],
-            [width + margin, -margin],
-            [width + margin, height + margin],
-            [-margin, height + margin],
-          ],
+          { x: -margin, y: -margin },
+          { x: width + margin, y: -margin },
+          { x: width + margin, y: height + margin },
+          { x: -margin, y: height + margin },
         ],
       ];
-      if (cutout) baseShape = polygonClipping.difference(baseShape, content());
+      if (cutout) baseShape = difference(baseShape, content());
     }
     parts.unshift({
       name: 'base',

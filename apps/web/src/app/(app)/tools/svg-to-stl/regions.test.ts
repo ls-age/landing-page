@@ -1,15 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import type { MultiPolygon } from 'polygon-clipping';
-import { multiPolygonArea, visibleRegions } from './regions';
+import { type Area, areaOf, pieces } from './geometry';
+import { visibleRegions } from './regions';
 
-const square = (x: number, y: number, size: number): MultiPolygon => [
+const square = (x: number, y: number, size: number): Area => [
   [
-    [
-      [x, y],
-      [x + size, y],
-      [x + size, y + size],
-      [x, y + size],
-    ],
+    { x, y },
+    { x: x + size, y },
+    { x: x + size, y: y + size },
+    { x, y: y + size },
   ],
 ];
 
@@ -33,7 +31,8 @@ describe('visibleRegions', () => {
     ]);
 
     expect(background?.area).toBe(96);
-    expect(background?.shape[0]).toHaveLength(2);
+    expect(pieces(background!.shape)).toHaveLength(1);
+    expect(background?.shape).toHaveLength(2);
     expect(dot?.area).toBe(4);
   });
 
@@ -61,9 +60,8 @@ describe('visibleRegions', () => {
   });
 });
 
-test('multiPolygonArea subtracts holes', () => {
-  const [[outer]] = square(0, 0, 10) as [[MultiPolygon[number][number]]];
-  const [[hole]] = square(2, 2, 2) as [[MultiPolygon[number][number]]];
-
-  expect(multiPolygonArea([[outer, hole]])).toBe(96);
+test('areaOf subtracts holes', () => {
+  expect(areaOf([...square(0, 0, 10), ...square(2, 2, 2).map((path) => [...path].reverse())])).toBe(
+    96,
+  );
 });

@@ -1,6 +1,7 @@
-import polygonClipping, { type MultiPolygon, type Polygon, type Ring } from 'polygon-clipping';
+import type { PathD } from 'clipper2-ts';
 import { Color, type ShapePath, type Vector2 } from 'three';
 import { type StrokeStyle, SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { type Area, EndType, fill, FillRule, JoinType, offset, union } from './geometry';
 import type { Layer } from './regions';
 
 /** Points per curve segment */
@@ -10,6 +11,7 @@ const CURVE_DIVISIONS = 12;
 interface PathStyle extends StrokeStyle {
   fill?: string;
   fillOpacity: number;
+  fillRule?: string;
   stroke?: string;
   strokeOpacity: number;
   opacity: number;
@@ -18,7 +20,10 @@ interface PathStyle extends StrokeStyle {
 
 const pathStyle = (path: ShapePath) => path.userData.style as PathStyle | undefined;
 
-const toRing = (points: Vector2[]): Ring => points.map(({ x, y }) => [x, y]);
+const toPath = (points: Vector2[]): PathD => points.map(({ x, y }) => ({ x, y }));
+
+const joins: Record<string, JoinType> = { round: JoinType.Round, bevel: JoinType.Bevel };
+const caps: Record<string, EndType> = { round: EndType.Round, square: EndType.Square };
 
 /** `#rrggbb`, or `undefined` for paints that don't fill anything */
 function paintColor(paint: string | undefined, warnings: Set<string>): string | undefined {
@@ -33,48 +38,39 @@ function paintColor(paint: string | undefined, warnings: Set<string>): string | 
   return `#${new Color().setStyle(paint).getHexString()}`;
 }
 
-function fillShape(path: ShapePath): MultiPolygon {
-  const polygons = path
-    .toShapes()
-    .map((shape) => shape.extractPoints(CURVE_DIVISIONS))
-    .map(({ shape, holes }): Polygon => [toRing(shape), ...holes.map((hole) => toRing(hole))])
-    .filter(([outer]) => outer && outer.length >= 3);
+function fillShape(path: ShapePath, style: PathStyle): Area {
+  const paths = path.subPaths
+    .map((subPath) => toPath(subPath.getPoints(CURVE_DIVISIONS)))
+    .filter((points) => points.length >= 3);
 
-  // Resolves self-intersections and overlapping subpaths
-  return polygons.length > 0 ? polygonClipping.union(polygons[0]!, ...polygons.slice(1)) : [];
+  return fill(paths, style.fillRule === 'evenodd' ? FillRule.EvenOdd : FillRule.NonZero);
 }
 
-function strokeShape(path: ShapePath, style: PathStyle): MultiPolygon {
-  const triangles: Polygon[] = [];
-
+function strokeShape(path: ShapePath, style: PathStyle): Area {
+  const closed: PathD[] = [];
+  const open: PathD[] = [];
   for (const subPath of path.subPaths) {
-    const geometry = SVGLoader.pointsToStroke(
-      subPath.getPoints(CURVE_DIVISIONS),
-      style,
-    ) as ReturnType<typeof SVGLoader.pointsToStroke> | null;
-    if (!geometry) continue;
-
-    const position = geometry.getAttribute('position');
-    for (let index = 0; index + 2 < position.count; index += 3) {
-      const [ax, ay, bx, by, cx, cy] = [index, index + 1, index + 2].flatMap((index) => [
-        position.getX(index),
-        position.getY(index),
-      ]) as [number, number, number, number, number, number];
-      // Skip degenerate triangles, they break the boolean operations
-      if (Math.abs((bx - ax) * (cy - ay) - (cx - ax) * (by - ay)) > 1e-9) {
-        triangles.push([
-          [
-            [ax, ay],
-            [bx, by],
-            [cx, cy],
-          ],
-        ]);
-      }
+    const points = toPath(subPath.getPoints(CURVE_DIVISIONS));
+    const [first, last] = [points[0], points.at(-1)];
+    // Shapes like `<rect>` end at their start instead of being closed explicitly
+    if (subPath.autoClose || (first && last && first.x === last.x && first.y === last.y)) {
+      // `getPoints` repeats the first point at the end of closed paths
+      closed.push(points.slice(0, -1));
+    } else {
+      open.push(points);
     }
-    geometry.dispose();
   }
 
-  return triangles.length > 0 ? polygonClipping.union(triangles[0]!, ...triangles.slice(1)) : [];
+  const options = {
+    join: joins[style.strokeLineJoin] ?? JoinType.Miter,
+    miterLimit: style.strokeMiterLimit,
+  };
+  const delta = style.strokeWidth / 2;
+
+  return union(
+    offset(closed, delta, { ...options, end: EndType.Joined }),
+    offset(open, delta, { ...options, end: caps[style.strokeLineCap] ?? EndType.Butt }),
+  );
 }
 
 /** The fills and strokes of an SVG, in painting order. Runs in the browser only (`DOMParser`). */
@@ -94,7 +90,7 @@ export function parseSvg(text: string) {
         : paintColor(style.stroke, warnings);
 
     try {
-      if (fill) layers.push({ color: fill, shape: fillShape(path) });
+      if (fill) layers.push({ color: fill, shape: fillShape(path, style) });
       if (stroke) layers.push({ color: stroke, shape: strokeShape(path, style) });
     } catch {
       warnings.add('Some shapes could not be converted and are missing.');
