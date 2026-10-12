@@ -272,6 +272,7 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
   const update = (changes: Partial<ModelSettings>) =>
     setSettings((current) => ({ ...current, ...changes }));
   const [showThin, setShowThin] = useState(true);
+  const [background, setBackground] = useState<string>();
 
   // Keeps the inputs responsive while the geometry is computed
   const deferred = useDeferredValue(settings);
@@ -333,7 +334,24 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
           <p className="text-muted-foreground">This SVG has no filled shapes to convert.</p>
         ) : (
           <div className="grid gap-8 md:grid-cols-2">
-            <ModelPreview parts={parts} highlights={highlights} />
+            <div className="flex flex-col gap-3">
+              <ModelPreview parts={parts} highlights={highlights} background={background} />
+              <div className="flex items-center gap-3">
+                <Label htmlFor={`${file.id}-background`}>Background</Label>
+                <Input
+                  id={`${file.id}-background`}
+                  type="color"
+                  value={background ?? '#ffffff'}
+                  onChange={(event) => setBackground(event.target.value)}
+                  className="w-16 p-1"
+                />
+                {background && (
+                  <Button variant="ghost" size="sm" onClick={() => setBackground(undefined)}>
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </div>
 
             <div className="flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-4">

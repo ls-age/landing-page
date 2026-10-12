@@ -36,7 +36,16 @@ interface View {
 }
 
 /** An interactive 3D view of the parts (drag to rotate, scroll to zoom) */
-export function ModelPreview({ parts, highlights }: { parts: Part[]; highlights: Highlight[] }) {
+export function ModelPreview({
+  parts,
+  highlights,
+  background,
+}: {
+  parts: Part[];
+  highlights: Highlight[];
+  /** A CSS color, the theme's muted background by default */
+  background?: string;
+}) {
   const container = useRef<HTMLDivElement>(null);
   const view = useRef<View>(undefined);
 
@@ -71,7 +80,8 @@ export function ModelPreview({ parts, highlights }: { parts: Part[]; highlights:
       // Fit the model's bounding sphere into the narrower field of view
       const verticalFov = MathUtils.degToRad(camera.fov);
       const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
-      const distance = radius / Math.sin(Math.min(verticalFov, horizontalFov) / 2);
+      // With a little padding around it
+      const distance = (radius * 1.1) / Math.sin(Math.min(verticalFov, horizontalFov) / 2);
       controls.target.set(0, 0, 0);
       camera.position.copy(direction).multiplyScalar(distance);
       controls.update();
@@ -148,6 +158,7 @@ export function ModelPreview({ parts, highlights }: { parts: Part[]; highlights:
     <div
       ref={container}
       className="bg-muted/50 aspect-square w-full cursor-grab overflow-hidden rounded-3xl active:cursor-grabbing"
+      style={{ backgroundColor: background }}
     />
   );
 }
