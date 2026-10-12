@@ -28,6 +28,7 @@ import {
   type BasePlacement,
   bounds,
   buildParts,
+  colorTop,
   defaultColorSettings,
   fileName,
   type ModelSettings,
@@ -158,6 +159,8 @@ function NumberField({
   step?: number;
 }) {
   const id = useId();
+  // The input keeps its own value while it's edited
+  const [initialValue] = useState(value);
 
   return (
     <div className="flex flex-col gap-2">
@@ -170,7 +173,7 @@ function NumberField({
         inputMode="decimal"
         min={min}
         step={step}
-        defaultValue={value}
+        defaultValue={initialValue}
         onChange={(event) => {
           const number = event.target.valueAsNumber;
           if (Number.isFinite(number) && number >= min) onChange(number);
@@ -299,13 +302,8 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
   );
   const highlights = useMemo(
     () =>
-      showThin
-        ? thin.map(({ color, shape }) => ({
-            shape,
-            z: (colors[color] ?? defaultColorSettings).height,
-          }))
-        : [],
-    [showThin, thin, colors],
+      showThin ? thin.map(({ color, shape }) => ({ shape, z: colorTop(deferred, color) })) : [],
+    [showThin, thin, deferred],
   );
   useEffect(
     () => () => {

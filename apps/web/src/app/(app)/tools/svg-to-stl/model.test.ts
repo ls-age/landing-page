@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { Box3 } from 'three';
+import { Box3, type BufferGeometry, Vector3 } from 'three';
 import { toFrame } from './geometry';
 import { bounds, buildParts, type ModelSettings, toMillimeters } from './model';
 import { visibleRegions } from './regions';
@@ -17,6 +17,20 @@ const regions = visibleRegions([
     ],
   },
 ]);
+
+/** The volume of a closed mesh (sum of signed tetrahedra) */
+function volume(geometry: BufferGeometry) {
+  const position = geometry.getAttribute('position');
+  const [a, b, c] = [new Vector3(), new Vector3(), new Vector3()];
+  let sum = 0;
+  for (let index = 0; index < position.count; index += 3) {
+    a.fromBufferAttribute(position, index);
+    b.fromBufferAttribute(position, index + 1);
+    c.fromBufferAttribute(position, index + 2);
+    sum += a.dot(b.cross(c)) / 6;
+  }
+  return sum;
+}
 
 const settings: ModelSettings = {
   width: 10,
@@ -50,10 +64,31 @@ describe('buildParts', () => {
     ]);
   });
 
-  test('puts a base plate with the content cut out level with the colors', () => {
-    const box = baseOf({ basePlacement: 'cutout' });
+  test('sinks the colors into a cut out base plate, which is closed behind them', () => {
+    // A 2 mm plate around a 1 mm high color
+    const [base, square] = buildParts(toMillimeters(regions, 10).regions, {
+      ...settings,
+      basePlacement: 'cutout',
+    });
+    base?.geometry.computeBoundingBox();
+    square?.geometry.computeBoundingBox();
+    expect([base?.geometry.boundingBox?.min.z, base?.geometry.boundingBox?.max.z]).toEqual([-2, 0]);
+    expect([square?.geometry.boundingBox?.min.z, square?.geometry.boundingBox?.max.z]).toEqual([
+      -1, 0,
+    ]);
+    // The 20 × 20 × 2 mm plate without the 10 × 10 × 1 mm pocket
+    expect(volume(base!.geometry)).toBeCloseTo(700, 6);
+  });
 
-    expect([box.min.z, box.max.z]).toEqual([0, 2]);
+  test('leaves out a cut out base plate the colors cover completely', () => {
+    const parts = buildParts(toMillimeters(regions, 10).regions, {
+      ...settings,
+      baseMargin: 0,
+      baseHeight: 1,
+      basePlacement: 'cutout',
+    });
+
+    expect(parts.map(({ name }) => name)).toEqual(['000000']);
   });
 
   test('ignores the cutout for outline base plates', () => {
@@ -73,7 +108,7 @@ describe('buildParts', () => {
     base?.geometry.computeBoundingBox();
 
     expect(model.frame).toEqual(toFrame(0, 0, 40, 40));
-    expect(base?.geometry.boundingBox?.max.toArray()).toEqual([40, 40, 2]);
+    expect(base?.geometry.boundingBox?.max.toArray()).toEqual([40, 40, 0]);
     expect(bounds(model.regions)).toEqual(toFrame(0, 20, 20, 40));
     expect(square?.name).toBe('000000');
   });

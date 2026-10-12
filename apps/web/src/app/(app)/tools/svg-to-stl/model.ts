@@ -2,6 +2,7 @@ import type { PathD } from 'clipper2-ts';
 import { zipSync } from 'fflate';
 import { type BufferGeometry, ExtrudeGeometry, Mesh, Path, Shape, Vector2 } from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import {
   type Area,
   bounds as boundsOf,
@@ -120,6 +121,49 @@ export function printedRegions(
   return result;
 }
 
+const heightOf = (settings: Pick<ModelSettings, 'colors'>, color: string) =>
+  (settings.colors[color] ?? defaultColorSettings).height;
+
+const isCutout = (settings: Pick<ModelSettings, 'base' | 'basePlacement'>) =>
+  settings.base === 'rectangle' && settings.basePlacement === 'cutout';
+
+/**
+ * The height of a color's top face: Colors stand on the base plate (at 0), or are sunk into it
+ * (with their tops at 0) if it's cut out
+ */
+export const colorTop = (
+  settings: Pick<ModelSettings, 'colors' | 'base' | 'basePlacement'>,
+  color: string,
+) => (isCutout(settings) ? 0 : heightOf(settings, color));
+
+/**
+ * A plate from `-thickness` to 0 with pockets in its top for the colors, each as deep as the
+ * color is high: Where the plate is thicker than a color, it's closed behind it. Built from
+ * slabs between the pocket depths.
+ */
+function pocketedPlate(plate: Area, pockets: { shape: Area; depth: number }[], thickness: number) {
+  const depths = [
+    ...new Set([0, thickness, ...pockets.map(({ depth }) => Math.min(depth, thickness))]),
+  ].sort((a, b) => a - b);
+
+  const slabs: BufferGeometry[] = [];
+  for (let index = 0; index + 1 < depths.length; index++) {
+    const [top, bottom] = [depths[index]!, depths[index + 1]!];
+    const holes = union(
+      ...pockets.filter(({ depth }) => depth >= bottom).map(({ shape }) => shape),
+    );
+    const slab = difference(plate, holes);
+    if (slab.length > 0) slabs.push(extrude(slab, -bottom, bottom - top));
+  }
+
+  // Nothing is left if the colors cover the whole plate
+  if (slabs.length === 0) return;
+
+  const geometry = mergeGeometries(slabs);
+  for (const slab of slabs) slab.dispose();
+  return geometry;
+}
+
 /**
  * One solid per region (in mm) and the base, which fills `frame` if it's rectangular. All parts
  * share one coordinate system, so slicers line them up when they're loaded as parts of one object.
@@ -129,20 +173,22 @@ export function buildParts(
   settings: ModelSettings,
   frame = bounds(regions),
 ): Part[] {
-  const parts: Part[] = regions.map(({ color, shape }) => ({
-    name: color.slice(1),
-    color,
-    geometry: extrude(shape, 0, (settings.colors[color] ?? defaultColorSettings).height),
-  }));
+  const cutout = isCutout(settings);
+  const parts: Part[] = regions.map(({ color, shape }) => {
+    const height = heightOf(settings, color);
+    return {
+      name: color.slice(1),
+      color,
+      geometry: extrude(shape, cutout ? -height : 0, height),
+    };
+  });
 
   if (settings.base !== 'none' && regions.length > 0 && settings.baseHeight > 0) {
-    const content = union(...regions.map(({ shape }) => shape));
-    const cutout = settings.base === 'rectangle' && settings.basePlacement === 'cutout';
-
-    let baseShape = content;
+    const thickness = settings.baseHeight;
+    let geometry: BufferGeometry | undefined;
     if (settings.base === 'rectangle') {
       const margin = settings.baseMargin;
-      baseShape = [
+      const plate: Area = [
         [
           { x: frame.minX - margin, y: frame.minY - margin },
           { x: frame.maxX + margin, y: frame.minY - margin },
@@ -150,13 +196,17 @@ export function buildParts(
           { x: frame.minX - margin, y: frame.maxY + margin },
         ],
       ];
-      if (cutout) baseShape = difference(baseShape, content);
+      geometry = cutout
+        ? pocketedPlate(
+            plate,
+            regions.map(({ color, shape }) => ({ shape, depth: heightOf(settings, color) })),
+            thickness,
+          )
+        : extrude(plate, -thickness, thickness);
+    } else {
+      geometry = extrude(union(...regions.map(({ shape }) => shape)), -thickness, thickness);
     }
-    parts.unshift({
-      name: 'base',
-      color: settings.baseColor,
-      geometry: extrude(baseShape, cutout ? 0 : -settings.baseHeight, settings.baseHeight),
-    });
+    if (geometry) parts.unshift({ name: 'base', color: settings.baseColor, geometry });
   }
 
   return parts;
