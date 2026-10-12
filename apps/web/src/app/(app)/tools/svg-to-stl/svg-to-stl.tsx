@@ -249,20 +249,25 @@ const formatShare = (share: number) => (share < 0.001 ? '<0.1' : format(share * 
 function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
   const result = useMemo(() => {
     try {
-      const { layers, warnings } = parseSvg(file.text);
-      return { regions: visibleRegions(layers), warnings };
+      const { layers, canvas, warnings } = parseSvg(file.text);
+      return { regions: visibleRegions(layers), canvas, warnings };
     } catch {
-      return { regions: [], warnings: ['The file could not be read as an SVG.'] };
+      return {
+        regions: [],
+        canvas: undefined,
+        warnings: ['The file could not be read as an SVG.'],
+      };
     }
   }, [file.text]);
-  const { regions, warnings } = result;
+  const { regions, canvas, warnings } = result;
 
   const [settings, setSettings] = useState<ModelSettings>({
     width: 100,
+    trim: false,
     colors: {},
     base: 'none',
     baseHeight: 1,
-    baseMargin: 2,
+    baseMargin: 0,
     basePlacement: 'cutout',
     baseColor: '#ffffff',
     lineWidth: defaultLineWidth,
@@ -276,19 +281,22 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
 
   // Keeps the inputs responsive while the geometry is computed
   const deferred = useDeferredValue(settings);
-  const { width, colors, lineWidth, removeUnprintable, thicken } = deferred;
+  const { width, trim, colors, lineWidth, removeUnprintable, thicken } = deferred;
+  const frame = useMemo(() => {
+    const selected = regions.filter(({ color }) => (colors[color] ?? defaultColorSettings).enabled);
+    if (trim || !canvas) return bounds(selected.length > 0 ? selected : regions);
+    return canvas;
+  }, [regions, canvas, trim, colors]);
+  const model = useMemo(() => toMillimeters(regions, width, frame), [regions, width, frame]);
   const printed = useMemo(
-    () =>
-      printedRegions(toMillimeters(regions, width), {
-        colors,
-        lineWidth,
-        removeUnprintable,
-        thicken,
-      }),
-    [regions, width, colors, lineWidth, removeUnprintable, thicken],
+    () => printedRegions(model.regions, { colors, lineWidth, removeUnprintable, thicken }),
+    [model, colors, lineWidth, removeUnprintable, thicken],
   );
   const thin = useMemo(() => findThinAreas(printed, lineWidth), [printed, lineWidth]);
-  const parts = useMemo(() => buildParts(printed, deferred), [printed, deferred]);
+  const parts = useMemo(
+    () => buildParts(printed, deferred, model.frame),
+    [printed, deferred, model],
+  );
   const highlights = useMemo(
     () =>
       showThin
@@ -306,8 +314,7 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
     [parts],
   );
 
-  const box = bounds(regions);
-  const height = box.width > 0 ? (box.height / box.width) * settings.width : 0;
+  const height = frame.width > 0 ? (frame.height / frame.width) * settings.width : 0;
   const totalArea = regions.reduce((sum, { area }) => sum + area, 0);
 
   return (
@@ -366,6 +373,16 @@ function SvgModel({ file, onRemove }: { file: SvgFile; onRemove: () => void }) {
                   <Label>Height (mm)</Label>
                   <p className="flex h-9 items-center text-sm">{format(height)}</p>
                 </div>
+                {canvas && (
+                  <div className="col-span-2">
+                    <SwitchField
+                      label="Trim to the content"
+                      hint="Fits the model and base plate to the selected colors instead of the SVG's canvas"
+                      checked={settings.trim}
+                      onChange={(trim) => update({ trim })}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-3">

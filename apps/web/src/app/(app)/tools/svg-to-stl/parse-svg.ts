@@ -1,7 +1,17 @@
 import type { PathD } from 'clipper2-ts';
 import { Color, type ShapePath, type Vector2 } from 'three';
 import { type StrokeStyle, SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { type Area, EndType, fill, FillRule, JoinType, offset, union } from './geometry';
+import {
+  type Area,
+  EndType,
+  fill,
+  FillRule,
+  type Frame,
+  JoinType,
+  offset,
+  toFrame,
+  union,
+} from './geometry';
 import type { Layer } from './regions';
 
 /** Points per curve segment */
@@ -73,9 +83,31 @@ function strokeShape(path: ShapePath, style: PathStyle): Area {
   );
 }
 
+/**
+ * The SVG's canvas in its own coordinates (which `SVGLoader` keeps): the `viewBox`, or the size
+ * if it's given in pixels
+ */
+function canvasOf(svg: Element): Frame | undefined {
+  const viewBox = svg
+    .getAttribute('viewBox')
+    ?.trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  if (viewBox?.length === 4 && viewBox.every((value) => Number.isFinite(value))) {
+    const [x, y, width, height] = viewBox as [number, number, number, number];
+    if (width > 0 && height > 0) return toFrame(x, y, x + width, y + height);
+  }
+
+  const [width, height] = ['width', 'height'].map((name) => {
+    const value = svg.getAttribute(name)?.trim() ?? '';
+    return /^[\d.]+(px)?$/.test(value) ? Number.parseFloat(value) : Number.NaN;
+  }) as [number, number];
+  if (width > 0 && height > 0) return toFrame(0, 0, width, height);
+}
+
 /** The fills and strokes of an SVG, in painting order. Runs in the browser only (`DOMParser`). */
 export function parseSvg(text: string) {
-  const { paths } = new SVGLoader().parse(text);
+  const { paths, xml } = new SVGLoader().parse(text);
   const layers: Layer[] = [];
   const warnings = new Set<string>();
 
@@ -105,5 +137,8 @@ export function parseSvg(text: string) {
     }
   }
 
-  return { layers, warnings: [...warnings] };
+  // `xml` is the root element, not the document its type says
+  const canvas = canvasOf(xml as unknown as Element);
+
+  return { layers, canvas, warnings: [...warnings] };
 }

@@ -64,6 +64,25 @@ export const areaOf = (area: Area) => Math.abs(areaPathsD(area));
 
 export const bounds = (areas: Area[]) => getBoundsPathsD(areas.flat());
 
+/** A rectangle the model is placed in: the SVG's canvas or the bounds of the content */
+export interface Frame {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  width: number;
+  height: number;
+}
+
+export const toFrame = (minX: number, minY: number, maxX: number, maxY: number): Frame => ({
+  minX,
+  minY,
+  maxX,
+  maxY,
+  width: maxX - minX,
+  height: maxY - minY,
+});
+
 export interface Polygon {
   outer: PathD;
   holes: PathD[];

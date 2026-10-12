@@ -2,7 +2,15 @@ import type { PathD } from 'clipper2-ts';
 import { zipSync } from 'fflate';
 import { type BufferGeometry, ExtrudeGeometry, Mesh, Path, Shape, Vector2 } from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
-import { type Area, bounds as boundsOf, difference, polygons, union } from './geometry';
+import {
+  type Area,
+  bounds as boundsOf,
+  difference,
+  type Frame,
+  polygons,
+  toFrame,
+  union,
+} from './geometry';
 import type { ColorRegion } from './regions';
 import { removeUnprintable, thickenThinAreas } from './thin-areas';
 
@@ -17,13 +25,15 @@ export type BaseKind = 'none' | 'outline' | 'rectangle';
 export type BasePlacement = 'cutout' | 'below';
 
 export interface ModelSettings {
-  /** The width of the whole model, in mm */
+  /** The width of the model's frame, in mm */
   width: number;
+  /** Frame the model by the selected colors instead of the SVG's canvas */
+  trim: boolean;
   colors: Record<string, ColorSettings>;
   base: BaseKind;
   /** mm */
   baseHeight: number;
-  /** The margin around a rectangular base, in mm */
+  /** The margin around a rectangular base (the model's frame), in mm */
   baseMargin: number;
   /**
    * Where a rectangular base goes: level with the colors, with the content cut out of it (an
@@ -47,16 +57,9 @@ export interface Part {
 
 export const defaultColorSettings: ColorSettings = { enabled: true, height: 1 };
 
-export function bounds(regions: ColorRegion[]) {
+export function bounds(regions: ColorRegion[]): Frame {
   const { left, top, right, bottom } = boundsOf(regions.map(({ shape }) => shape));
-  return {
-    minX: left,
-    minY: top,
-    maxX: right,
-    maxY: bottom,
-    width: right - left,
-    height: bottom - top,
-  };
+  return toFrame(left, top, right, bottom);
 }
 
 function toPath<T extends Path>(path: T, points: PathD) {
@@ -83,19 +86,24 @@ function extrude(shape: Area, z: number, depth: number) {
   return geometry;
 }
 
-/** Scales the regions to `width` (in mm), with the origin at the bottom left */
-export function toMillimeters(regions: ColorRegion[], width: number): ColorRegion[] {
-  const box = bounds(regions);
-  const scale = box.width > 0 ? width / box.width : 1;
+/**
+ * Scales the regions so `frame` is `width` mm wide, with its bottom left corner at the origin.
+ * Returns the regions and the frame in mm.
+ */
+export function toMillimeters(regions: ColorRegion[], width: number, frame = bounds(regions)) {
+  const scale = frame.width > 0 ? width / frame.width : 1;
 
-  return regions.map((region) => ({
-    ...region,
-    // SVG coordinates grow downwards
-    shape: region.shape.map((path) =>
-      path.map(({ x, y }) => ({ x: (x - box.minX) * scale, y: (box.maxY - y) * scale })),
-    ),
-    area: region.area * scale ** 2,
-  }));
+  return {
+    regions: regions.map((region) => ({
+      ...region,
+      // SVG coordinates grow downwards
+      shape: region.shape.map((path) =>
+        path.map(({ x, y }) => ({ x: (x - frame.minX) * scale, y: (frame.maxY - y) * scale })),
+      ),
+      area: region.area * scale ** 2,
+    })),
+    frame: toFrame(0, 0, frame.width * scale, frame.height * scale),
+  };
 }
 
 /** The enabled colors (in mm), adjusted for printing */
@@ -113,10 +121,14 @@ export function printedRegions(
 }
 
 /**
- * One solid per region (in mm) and the base. All parts share one coordinate system, so slicers
- * line them up when they're loaded as parts of one object.
+ * One solid per region (in mm) and the base, which fills `frame` if it's rectangular. All parts
+ * share one coordinate system, so slicers line them up when they're loaded as parts of one object.
  */
-export function buildParts(regions: ColorRegion[], settings: ModelSettings): Part[] {
+export function buildParts(
+  regions: ColorRegion[],
+  settings: ModelSettings,
+  frame = bounds(regions),
+): Part[] {
   const parts: Part[] = regions.map(({ color, shape }) => ({
     name: color.slice(1),
     color,
@@ -130,13 +142,12 @@ export function buildParts(regions: ColorRegion[], settings: ModelSettings): Par
     let baseShape = content;
     if (settings.base === 'rectangle') {
       const margin = settings.baseMargin;
-      const box = bounds(regions);
       baseShape = [
         [
-          { x: box.minX - margin, y: box.minY - margin },
-          { x: box.maxX + margin, y: box.minY - margin },
-          { x: box.maxX + margin, y: box.maxY + margin },
-          { x: box.minX - margin, y: box.maxY + margin },
+          { x: frame.minX - margin, y: frame.minY - margin },
+          { x: frame.maxX + margin, y: frame.minY - margin },
+          { x: frame.maxX + margin, y: frame.maxY + margin },
+          { x: frame.minX - margin, y: frame.maxY + margin },
         ],
       ];
       if (cutout) baseShape = difference(baseShape, content);

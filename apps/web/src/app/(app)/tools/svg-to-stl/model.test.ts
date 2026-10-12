@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Box3 } from 'three';
-import { buildParts, type ModelSettings, toMillimeters } from './model';
+import { toFrame } from './geometry';
+import { bounds, buildParts, type ModelSettings, toMillimeters } from './model';
 import { visibleRegions } from './regions';
 
 const regions = visibleRegions([
@@ -19,6 +20,7 @@ const regions = visibleRegions([
 
 const settings: ModelSettings = {
   width: 10,
+  trim: false,
   colors: {},
   base: 'rectangle',
   baseHeight: 2,
@@ -31,7 +33,7 @@ const settings: ModelSettings = {
 };
 
 const baseOf = (changes: Partial<ModelSettings>) => {
-  const base = buildParts(toMillimeters(regions, 10), { ...settings, ...changes }).find(
+  const base = buildParts(toMillimeters(regions, 10).regions, { ...settings, ...changes }).find(
     ({ name }) => name === 'base',
   );
   base?.geometry.computeBoundingBox();
@@ -58,5 +60,21 @@ describe('buildParts', () => {
     const box = baseOf({ base: 'outline', basePlacement: 'cutout' });
 
     expect([box.min.z, box.max.z]).toEqual([-2, 0]);
+  });
+
+  test('sizes a rectangular base plate to the frame', () => {
+    // The square in the top left quarter of a 20 × 20 canvas, scaled to 40 mm
+    const model = toMillimeters(regions, 40, toFrame(0, 0, 20, 20));
+    const [base, square] = buildParts(
+      model.regions,
+      { ...settings, baseMargin: 0, basePlacement: 'cutout' },
+      model.frame,
+    );
+    base?.geometry.computeBoundingBox();
+
+    expect(model.frame).toEqual(toFrame(0, 0, 40, 40));
+    expect(base?.geometry.boundingBox?.max.toArray()).toEqual([40, 40, 2]);
+    expect(bounds(model.regions)).toEqual(toFrame(0, 20, 20, 40));
+    expect(square?.name).toBe('000000');
   });
 });
