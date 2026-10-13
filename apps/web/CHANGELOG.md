@@ -1,5 +1,17 @@
 # @ls-age/web
 
+## 1.3.0
+
+### Minor Changes
+
+- [#100](https://github.com/ls-age/landing-page/pull/100) [`263d2c9`](https://github.com/ls-age/landing-page/commit/263d2c9dabbba1e00a6f9e8e23aa7b2197ecc0bd) - Show a post's featured image above its title
+
+- [#99](https://github.com/ls-age/landing-page/pull/99) [`30bb493`](https://github.com/ls-age/landing-page/commit/30bb493f01d43c1912ccde61bedf0165a4b47f2c) - Zoom images in blog posts on click
+
+- [#99](https://github.com/ls-age/landing-page/pull/99) [`30bb493`](https://github.com/ls-age/landing-page/commit/30bb493f01d43c1912ccde61bedf0165a4b47f2c) - Optimize images in blog posts with `next/image` and show them centered, at most 36rem wide and 32rem high
+
+- [#97](https://github.com/ls-age/landing-page/pull/97) [`2fe4228`](https://github.com/ls-age/landing-page/commit/2fe4228b96b693f8d3897801402cceb1a2310c7b) - Make links in blog posts stand out: they're in the primary color, and links to other sites or to files get an icon (files are downloaded)
+
 ## 1.2.0
 
 ### Minor Changes
