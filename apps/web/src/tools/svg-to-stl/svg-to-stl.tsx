@@ -7,15 +7,9 @@ import {
   AccordionTrigger,
 } from '@workspace/ui/components/accordion';
 import { Badge } from '@workspace/ui/components/badge';
-import { Button, buttonVariants } from '@workspace/ui/components/button';
+import { Button } from '@workspace/ui/components/button';
 import { ButtonGroup, ButtonGroupSeparator } from '@workspace/ui/components/button-group';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@workspace/ui/components/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,23 +29,20 @@ import {
 } from '@workspace/ui/components/select';
 import { Switch } from '@workspace/ui/components/switch';
 import { cn } from '@workspace/ui/lib/utils';
+import { CircleCheckIcon, DownloadIcon, MoreHorizontalIcon, TriangleAlertIcon } from 'lucide-react';
 import {
-  CircleCheckIcon,
-  DownloadIcon,
-  FileUpIcon,
-  MoreHorizontalIcon,
-  TriangleAlertIcon,
-} from 'lucide-react';
-import {
-  type ChangeEvent,
   type DragEvent,
   type ReactNode,
   useDeferredValue,
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
 } from 'react';
+import { ToolActions } from '../tool-actions';
+import type { ToolProps } from '../types';
+import { DropArea, firstSvg, SvgInput } from './drop-area';
 import {
   type BaseKind,
   type BasePlacement,
@@ -86,29 +77,31 @@ function download(name: string, data: Uint8Array<ArrayBuffer>, type: string) {
   URL.revokeObjectURL(url);
 }
 
-const isSvg = (file: File) => file.type === 'image/svg+xml' || /\.svg$/i.test(file.name);
-
-export function SvgToStl() {
+/** Converts one SVG at a time; a new `input` (or a chosen or dropped file) replaces it */
+export function SvgToStl({ input, onInputChange }: ToolProps<File>) {
   const [file, setFile] = useState<SvgFile>();
   const [dragging, setDragging] = useState(false);
   const inputId = useId();
+  // The file shown, so it isn't loaded again when it comes back as `input`
+  const current = useRef<File>(undefined);
 
-  /** Replaces the current file with the first SVG in `list` */
-  async function choose(list: FileList | null) {
-    const svg = [...(list ?? [])].find((candidate) => isSvg(candidate));
-    if (!svg) return;
+  async function choose(svg: File | undefined) {
+    if (!svg || svg === current.current) return;
+    current.current = svg;
+    onInputChange(svg);
     setFile({ id: crypto.randomUUID(), name: svg.name, text: await svg.text() });
   }
+
+  useEffect(() => {
+    void choose(input);
+    // `choose` only changes with `onInputChange`, which reports to the same place
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input]);
 
   function onDrop(event: DragEvent) {
     event.preventDefault();
     setDragging(false);
-    void choose(event.dataTransfer.files);
-  }
-
-  function onChange(event: ChangeEvent<HTMLInputElement>) {
-    void choose(event.target.files);
-    event.target.value = '';
+    void choose(firstSvg(event.dataTransfer.files));
   }
 
   return (
@@ -127,30 +120,12 @@ export function SvgToStl() {
         dragging && file && 'ring-primary ring-2 ring-offset-8',
       )}
     >
-      <input
-        id={inputId}
-        type="file"
-        accept=".svg,image/svg+xml"
-        className="sr-only"
-        onChange={onChange}
-      />
+      <SvgInput id={inputId} onFile={(svg) => void choose(svg)} />
       {file ? (
         // A new file starts over with the default settings
-        <SvgModel key={file.id} file={file} inputId={inputId} />
+        <SvgModel key={file.id} file={file} />
       ) : (
-        <label
-          htmlFor={inputId}
-          className={cn(
-            'hover:bg-muted/50 flex cursor-pointer flex-col items-center gap-2 rounded-3xl border-2 border-dashed px-4 py-12 text-center transition-colors',
-            dragging && 'border-primary bg-muted/50',
-          )}
-        >
-          <FileUpIcon className="text-muted-foreground size-8" aria-hidden />
-          <span className="font-medium">Drop an SVG file here, or click to choose one</span>
-          <span className="text-muted-foreground text-sm">
-            Everything runs in your browser, your files aren&apos;t uploaded anywhere.
-          </span>
-        </label>
+        <DropArea inputId={inputId} dragging={dragging} />
       )}
     </div>
   );
@@ -327,8 +302,22 @@ const format = (value: number, maximumFractionDigits = 1) =>
 
 const formatShare = (share: number) => (share < 0.001 ? '<0.1' : format(share * 100));
 
-/** The settings and downloads of one SVG; `inputId` is the file input that replaces it */
-function SvgModel({ file, inputId }: { file: SvgFile; inputId: string }) {
+function Warnings({ warnings, className }: { warnings: string[]; className?: string }) {
+  if (warnings.length === 0) return;
+  return (
+    <ul className={cn('text-muted-foreground flex flex-col gap-1 text-sm', className)}>
+      {warnings.map((warning) => (
+        <li key={warning} className="flex items-center gap-2">
+          <TriangleAlertIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
+          {warning}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The settings and downloads of one SVG (in the dialog's footer) */
+function SvgModel({ file }: { file: SvgFile }) {
   const result = useMemo(() => {
     try {
       const { layers, canvas, warnings } = parseSvg(file.text);
@@ -403,71 +392,70 @@ function SvgModel({ file, inputId }: { file: SvgFile; inputId: string }) {
 
   return (
     <section className="grid gap-8 md:grid-cols-2">
-      {/* The preview takes the place of a card image; stays in view while the settings scroll */}
-      <Card
-        size="sm"
-        className={cn('bg-background self-start md:sticky md:top-20', regions.length > 0 && 'pt-0')}
-      >
-        {regions.length > 0 && (
-          <ModelPreview
-            parts={parts}
-            highlights={highlights}
-            background={background || 'var(--half-muted)'}
-          />
-        )}
-        <CardHeader>
-          <CardTitle className="break-all">{file.name}</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          {(warnings.length > 0 || regions.length === 0) && (
-            <ul className="text-muted-foreground flex flex-col gap-1">
-              {warnings.map((warning) => (
-                <li key={warning} className="flex items-center gap-2">
-                  <TriangleAlertIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
-                  {warning}
-                </li>
-              ))}
-              {regions.length === 0 && <li>This SVG has no filled shapes to convert.</li>}
-            </ul>
-          )}
-
-          {regions.length > 0 && (
-            <div className="flex items-center gap-2">
+      {/* Fills the dialog's height on wider screens, and stays in view while the settings scroll */}
+      <div className="relative self-start md:sticky md:top-0">
+        {regions.length > 0 ? (
+          <>
+            <ModelPreview
+              parts={parts}
+              highlights={highlights}
+              background={background}
+              className="md:aspect-auto md:h-[100cqh]"
+            />
+            <div className="pointer-events-none absolute inset-x-3 top-3 flex flex-col items-start gap-2 *:pointer-events-auto">
+              <span className="bg-background/80 max-w-full truncate rounded-full px-3 py-1 text-sm font-medium backdrop-blur">
+                {file.name}
+              </span>
+              <Warnings
+                warnings={warnings}
+                className="bg-background/80 rounded-2xl px-3 py-2 backdrop-blur"
+              />
+            </div>
+            {/* Small, at the bottom end of the preview */}
+            <div className="bg-background/80 ring-foreground/10 absolute bottom-3 right-3 flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-xs shadow-sm ring-1 backdrop-blur">
               <Input
                 id={`${file.id}-background`}
                 type="color"
-                value={background || '#fafafa'}
+                value={background || '#d4d4d4'}
                 onChange={(event) => setBackground(event.target.value)}
-                className="w-12 p-1"
+                aria-label="Background"
+                title="Background"
+                className="h-6 w-8 rounded-full p-0.5"
               />
-              <Label htmlFor={`${file.id}-background`}>Background</Label>
               {background && (
-                <Button variant="ghost" size="sm" onClick={() => setBackground(undefined)}>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => setBackground(undefined)}
+                  aria-label="Reset the background"
+                >
                   Reset
                 </Button>
               )}
-              <div className="ml-auto flex items-center gap-2">
-                <Switch
-                  id={`${file.id}-show-thin`}
-                  checked={showThin}
-                  onCheckedChange={setShowThin}
-                />
-                <Label htmlFor={`${file.id}-show-thin`}>Show thin areas</Label>
-              </div>
+              <Switch
+                id={`${file.id}-show-thin`}
+                size="sm"
+                checked={showThin}
+                onCheckedChange={setShowThin}
+              />
+              <Label htmlFor={`${file.id}-show-thin`} className="text-xs">
+                Show thin areas
+              </Label>
             </div>
-          )}
-        </CardContent>
+          </>
+        ) : (
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="truncate">{file.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Warnings warnings={[...warnings, 'This SVG has no filled shapes to convert.']} />
+            </CardContent>
+          </Card>
+        )}
 
-        <CardFooter className="justify-between gap-2">
-          <label
-            htmlFor={inputId}
-            className={cn(buttonVariants({ variant: 'secondary' }), 'cursor-pointer')}
-          >
-            <FileUpIcon data-icon="inline-start" aria-hidden />
-            Choose file
-          </label>
-          {parts.length > 0 && (
+        {parts.length > 0 && (
+          <ToolActions>
             <ButtonGroup>
               <Button
                 onClick={() =>
@@ -512,9 +500,9 @@ function SvgModel({ file, inputId }: { file: SvgFile; inputId: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </ButtonGroup>
-          )}
-        </CardFooter>
-      </Card>
+          </ToolActions>
+        )}
+      </div>
 
       {regions.length > 0 && (
         <Accordion multiple defaultValue={['colors']} className="self-start">
