@@ -5,7 +5,7 @@ import type { ToolSlug } from '@/lib/tools';
 // Loaded only on the posts that show them
 const components: Record<ToolSlug, ComponentType> = {
   'svg-to-stl': dynamic(() =>
-    import('@/app/(app)/tools/svg-to-stl/svg-to-stl').then((tool) => tool.SvgToStl),
+    import('@/tools/svg-to-stl/svg-to-stl').then((tool) => tool.SvgToStl),
   ),
 };
 
