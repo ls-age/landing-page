@@ -46,7 +46,8 @@ const work: {
     title: 'Boraan',
     url: 'https://www.boraan.at',
     description: 'An online shop for organic, fair-trade Kampot pepper from Cambodia.',
-    image: '/work/boraan.webp',
+    image: '/work/boraan-light.webp',
+    darkImage: '/work/boraan-dark.webp',
     tags: ['Next.js', 'Payload', 'Vercel'],
   },
   {
