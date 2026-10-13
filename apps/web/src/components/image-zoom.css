@@ -1,0 +1,8 @@
+/* react-medium-image-zoom in the site's colors (its own styles assume a white page) */
+[data-rmiz-content='found'] img {
+  cursor: zoom-in;
+}
+
+[data-rmiz-modal-overlay='visible'] {
+  background-color: var(--background);
+}
