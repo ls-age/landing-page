@@ -1,8 +1,7 @@
-import { cn } from '@workspace/ui/lib/utils';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { FeaturedImage, featuredImagesOf } from '@/components/featured-image';
 import { blogPosting, JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
 import { isPreviewingDrafts } from '@/lib/admin';
@@ -46,8 +45,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
   if (!post) notFound();
 
   const { previous, next } = await getAdjacentPosts(slug);
-  const image = typeof post.featuredImage === 'object' ? post.featuredImage : undefined;
-  const darkImage = typeof post.featuredImageDark === 'object' ? post.featuredImageDark : undefined;
+  const image = featuredImagesOf(post)?.light;
 
   return (
     <article className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-16">
@@ -59,7 +57,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
           slug: post.slug ?? slug,
           publishedAt: post.publishedAt,
           updatedAt: post.updatedAt,
-          image: image?.url ?? undefined,
+          image: image?.url,
         })}
       />
       <header className="flex flex-col gap-3">
@@ -72,26 +70,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
         <h1 className="text-balance text-4xl font-semibold tracking-tight">{post.title}</h1>
         <p className="text-muted-foreground text-lg">{post.description}</p>
       </header>
-      {image?.url && (
-        <Image
-          src={image.url}
-          alt={image.alt}
-          width={image.width ?? 1200}
-          height={image.height ?? 630}
-          priority
-          className={cn('rounded-xl', darkImage?.url && 'dark:hidden')}
-        />
-      )}
-      {image?.url && darkImage?.url && (
-        <Image
-          src={darkImage.url}
-          alt={darkImage.alt}
-          width={darkImage.width ?? 1200}
-          height={darkImage.height ?? 630}
-          loading="eager"
-          className="hidden rounded-xl dark:block"
-        />
-      )}
+      <FeaturedImage post={post} important className="rounded-xl" />
       <RichText data={post.content} />
       {(previous || next) && (
         <footer className="border-t pt-8">
