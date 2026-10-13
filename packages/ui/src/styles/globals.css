@@ -126,8 +126,6 @@
   }
   body {
     @apply bg-background text-foreground;
-
-    --half-muted: alpha(from var(--muted) / calc(alpha * 0.5));
   }
 }
 
