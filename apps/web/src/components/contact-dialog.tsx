@@ -12,6 +12,12 @@ import {
 import type { ComponentProps } from 'react';
 import { site } from '@/lib/site';
 
+const profiles = [
+  { label: 'GitHub', href: site.author.github },
+  { label: 'Printables', href: site.author.printables },
+  { label: 'Instagram', href: site.author.instagram },
+];
+
 export function ContactDialog({
   label = 'Contact',
   size,
@@ -25,7 +31,7 @@ export function ContactDialog({
       <DialogContent className="text-center">
         <DialogHeader className="items-center">
           <DialogTitle>Interested in working together?</DialogTitle>
-          <DialogDescription>Feel free to send me a mail!</DialogDescription>
+          <DialogDescription>Send me an email, or find me on one of these sites.</DialogDescription>
         </DialogHeader>
         <a
           className={buttonVariants({ size: 'lg', className: 'self-center' })}
@@ -33,6 +39,13 @@ export function ContactDialog({
         >
           {site.email}
         </a>
+        <div className="flex flex-wrap justify-center gap-2">
+          {profiles.map(({ label, href }) => (
+            <a key={href} className={buttonVariants({ variant: 'outline' })} href={href}>
+              {label}
+            </a>
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   );

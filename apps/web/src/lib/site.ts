@@ -9,6 +9,8 @@ export const site = {
   author: {
     name: 'Lukas Hechenberger',
     github: 'https://github.com/LukasHechenberger',
+    printables: 'https://www.printables.com/@LukasHechenb_1603663',
+    instagram: 'https://www.instagram.com/lookitsaluki/',
   },
 } as const;
 
