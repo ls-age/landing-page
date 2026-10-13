@@ -1,5 +1,23 @@
 # @ls-age/web
 
+## 1.2.0
+
+### Minor Changes
+
+- [#82](https://github.com/ls-age/landing-page/pull/82) [`3a9280c`](https://github.com/ls-age/landing-page/commit/3a9280c485cef83f8355add02811e7bdd152ba71) - Link to the previous and next blog post, with their title and description, at the end of each post
+
+- [#93](https://github.com/ls-age/landing-page/pull/93) [`671bfc2`](https://github.com/ls-age/landing-page/commit/671bfc2eada14766cb835c9286f68470e1c0b7d8) - Blog posts can have a second featured image that's shown in dark mode
+
+- [#88](https://github.com/ls-age/landing-page/pull/88) [`ea06110`](https://github.com/ls-age/landing-page/commit/ea06110f3548c1a60542f76baa9f1b7a055b65c9) - Restyle the site header: the logo links home, the navigation is a button group, and the header fades out over a blurred gradient. Hechenbros is linked in the footer only
+
+- [#93](https://github.com/ls-age/landing-page/pull/93) [`671bfc2`](https://github.com/ls-age/landing-page/commit/671bfc2eada14766cb835c9286f68470e1c0b7d8) - Show the posts' featured images in their cards on the home page and the blog
+
+- [#85](https://github.com/ls-age/landing-page/pull/85) [`500b903`](https://github.com/ls-age/landing-page/commit/500b903c3b71c5946de39edd68b32b4f80852e7e) - Blog posts can embed tools that run in the browser (Tool blocks), and the blog marks posts with tools. The first one, SVG to STL, turns a colored SVG into one STL per color for multicolor 3D printing, also when shapes overlap
+
+### Patch Changes
+
+- [#95](https://github.com/ls-age/landing-page/pull/95) [`e89368d`](https://github.com/ls-age/landing-page/commit/e89368d48a56037099bc8b9870f16ab11b56fe99) - Update the sitemap, llms.txt and the blog's feed right away when posts change, instead of within an hour
+
 ## 1.1.1
 
 ### Patch Changes
