@@ -1,5 +1,15 @@
 # @ls-age/web
 
+## 1.3.1
+
+### Patch Changes
+
+- [#103](https://github.com/ls-age/landing-page/pull/103) [`c48eade`](https://github.com/ls-age/landing-page/commit/c48eade21aaeaf962089e1fc7c04aee65f446999) - Show a dark mode screenshot of Boraan on the home page in dark mode
+
+- [#104](https://github.com/ls-age/landing-page/pull/104) [`a3baff8`](https://github.com/ls-age/landing-page/commit/a3baff8c9944360b9f81ed78f9ae99c6918275f2) - Link GitHub, Printables and Instagram profiles in the contact dialog
+
+- [#102](https://github.com/ls-age/landing-page/pull/102) [`b508e19`](https://github.com/ls-age/landing-page/commit/b508e194d2349931408504d99d69fa802bc41bd6) - SVG to STL applies masks and clip paths, so shapes cut by them (like a background with rounded corners) keep their outline
+
 ## 1.3.0
 
 ### Minor Changes
