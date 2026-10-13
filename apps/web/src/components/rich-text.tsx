@@ -1,4 +1,8 @@
-import type { SerializedBlockNode, SerializedHeadingNode } from '@payloadcms/richtext-lexical';
+import type {
+  SerializedBlockNode,
+  SerializedHeadingNode,
+  SerializedUploadNode,
+} from '@payloadcms/richtext-lexical';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 import {
@@ -8,9 +12,12 @@ import {
 } from '@payloadcms/richtext-lexical/react';
 import { cn } from '@workspace/ui/lib/utils';
 import { ArrowUpRightIcon, DownloadIcon } from 'lucide-react';
+import Image, { getImageProps } from 'next/image';
 import { cloneElement, type ComponentProps, type ReactElement, type ReactNode } from 'react';
 import slugify from 'slugify';
+import type { Media } from '@/__generated__/payload-types';
 import { CodeBlock } from '@/components/code-block';
+import { ImageZoom } from '@/components/image-zoom';
 import { PostTool } from '@/components/post-tool';
 import { site } from '@/lib/site';
 import { isTool } from '@/lib/tools';
@@ -75,6 +82,38 @@ function styleLink(link: ReactNode) {
   );
 }
 
+/** The largest an image in the text gets, in rem: phone photos would fill the screen otherwise */
+const imageBox = { width: 36, height: 32 };
+
+/**
+ * An uploaded image, optimized with `next/image` and centered, at most `imageBox` big (Payload's
+ * converter shows the original file), that zooms in on click. `undefined` for other uploads and
+ * unpopulated ones.
+ */
+function uploadImage({ node }: { node: SerializedUploadNode }) {
+  const media = node.value as Media | string;
+  if (typeof media !== 'object' || !media.url || !media.mimeType?.startsWith('image/')) return;
+
+  const width = media.width ?? 1200;
+  const height = media.height ?? 900;
+  // Fills the box's width, unless that makes it too high
+  const displayWidth = Math.min(imageBox.width, (imageBox.height * width) / height);
+  const image = { src: media.url, alt: media.alt, width, height };
+  // Zoomed in, it fills the screen, so it needs larger sizes (loaded only when zooming in)
+  const { src, srcSet, sizes } = getImageProps({ ...image, sizes: '100vw' }).props;
+
+  return (
+    <ImageZoom zoomImg={{ src, srcSet, sizes, alt: media.alt }}>
+      <Image
+        {...image}
+        sizes={`(min-width: ${displayWidth + 4}rem) ${displayWidth}rem, 100vw`}
+        style={{ width: `${displayWidth}rem` }}
+        className="mx-auto block h-auto"
+      />
+    </ImageZoom>
+  );
+}
+
 /** A converter's output (converters can also be plain nodes) */
 const render = (converter: unknown, converterArguments: unknown) =>
   typeof converter === 'function'
@@ -89,6 +128,8 @@ const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
     const Tag = node.tag;
     return <Tag id={headingId(node)}>{nodesToJSX({ nodes: node.children })}</Tag>;
   },
+  upload: (converterArguments) =>
+    uploadImage(converterArguments) ?? render(defaultConverters.upload, converterArguments),
   blocks: {
     ...defaultConverters.blocks,
     Code: ({ node }: { node: SerializedBlockNode<{ code?: string; language?: string }> }) => (
