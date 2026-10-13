@@ -11,6 +11,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ContactDialog } from '@/components/contact-dialog';
+import { FeaturedImage } from '@/components/featured-image';
 import { JsonLd, website } from '@/components/json-ld';
 import { formatDate, getPosts } from '@/lib/posts';
 import { site } from '@/lib/site';
@@ -221,6 +222,12 @@ export default async function HomePage() {
             {latestPosts.map((post) => (
               <Link key={post.id} href={`/blog/${post.slug}`}>
                 <Card className="hover:bg-muted/50 h-full transition-colors">
+                  <FeaturedImage
+                    post={post}
+                    decorative
+                    sizes="(min-width: 64rem) 320px, (min-width: 48rem) 33vw, 100vw"
+                    className="aspect-video w-full object-cover"
+                  />
                   <CardHeader>
                     <p className="text-muted-foreground text-sm">
                       <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>

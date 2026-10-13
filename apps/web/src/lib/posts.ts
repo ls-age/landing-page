@@ -11,14 +11,20 @@ const visible = (): Where => ({
   ],
 });
 
-/** The visible posts, newest first, with the tools they embed instead of their content */
+/**
+ * The visible posts, newest first, with their featured images and the tools they embed instead of
+ * their content
+ */
 export async function getPosts() {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: 'posts',
     where: visible(),
     sort: '-publishedAt',
-    depth: 0,
+    // For the featured images (their URL is computed from all their fields); of the posts the
+    // content links to, only the slug (the content is only searched for tools)
+    depth: 1,
+    populate: { posts: { slug: true } },
     limit: 0,
     pagination: false,
     select: {
@@ -26,6 +32,8 @@ export async function getPosts() {
       slug: true,
       description: true,
       content: true,
+      featuredImage: true,
+      featuredImageDark: true,
       publishedAt: true,
       updatedAt: true,
     },
