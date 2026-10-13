@@ -1,14 +1,19 @@
 import { revalidatePath } from 'next/cache';
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, PayloadRequest } from 'payload';
 
+/** Route handlers with content from Payload, which aren't beneath the layout */
+const routeHandlers = ['/sitemap.xml', '/llms.txt', '/blog/feed.xml'];
+
 /**
  * The public pages are rendered statically and read Payload through the local API, which doesn't
  * tag anything, so `revalidateTag` can't reach them. The site is small, so every change invalidates
- * all of it; pages are re-rendered lazily on their next visit.
+ * all of it (and the route handlers, which `revalidatePath('/', 'layout')` doesn't reach); pages are
+ * re-rendered lazily on their next visit.
  */
 function revalidateSite(request: PayloadRequest) {
   try {
     revalidatePath('/', 'layout');
+    for (const path of routeHandlers) revalidatePath(path);
   } catch (error) {
     // Expected outside of a Next.js request (e.g. in scripts), where there is no cache to invalidate
     request.payload.logger.warn({ err: error }, 'Could not revalidate the site');
