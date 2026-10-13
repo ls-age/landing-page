@@ -18,7 +18,7 @@ const author = {
   name: site.author.name,
   url: site.url,
   image: `${site.url}/lukas-hechenberger.png`,
-  sameAs: [site.author.github],
+  sameAs: [site.author.github, site.author.printables, site.author.instagram],
 } satisfies Exclude<Person, string>;
 
 export const website: WithContext<WebSite> = {
