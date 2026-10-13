@@ -2,6 +2,7 @@ import { editorConfigFactory, getEnabledNodes } from '@payloadcms/richtext-lexic
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import type { Payload } from 'payload';
 import { codeLanguages } from '@/lib/code-languages';
+import { isTool, tools } from '@/lib/tools';
 
 /**
  * Strict validation of a post's content (Lexical JSON) for agents writing posts through MCP.
@@ -9,7 +10,7 @@ import { codeLanguages } from '@/lib/code-languages';
  * Payload itself only checks the rough shape of rich text. This also loads the content into a
  * headless Lexical editor with the posts' editor config (unknown node types fail there) and checks
  * what the editor config allows but the site doesn't render: other headings than h2-h4, blocks
- * other than code blocks, code languages without highlighting, and links to nothing.
+ * other than code and tool blocks, unknown tools, code languages without highlighting, and links to nothing.
  */
 
 type Node = { type?: unknown; children?: unknown; [key: string]: unknown };
@@ -38,8 +39,16 @@ function checkNodes(node: Node, path: string, problems: string[], internalLinks:
             `${path}: unknown code language "${String(fields.language)}", use one of ${Object.keys(codeLanguages).join(', ')}`,
           );
         }
+      } else if (fields.blockType === 'Tool') {
+        if (!isTool(fields.tool)) {
+          problems.push(
+            `${path}: unknown tool "${String(fields.tool)}", use one of ${Object.keys(tools).join(', ')}`,
+          );
+        }
       } else {
-        problems.push(`${path}: the only block is "Code", not "${String(fields.blockType)}"`);
+        problems.push(
+          `${path}: the only blocks are "Code" and "Tool", not "${String(fields.blockType)}"`,
+        );
       }
       break;
     }

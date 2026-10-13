@@ -1,5 +1,6 @@
 import config from '@payload-config';
 import { getPayload, type Where } from 'payload';
+import { toolsIn } from '@/lib/tools';
 import 'server-only';
 
 /** Published posts whose publication date has come (the same rule as the `posts` read access) */
@@ -10,7 +11,7 @@ const visible = (): Where => ({
   ],
 });
 
-/** The visible posts, newest first, without their content */
+/** The visible posts, newest first, with the tools they embed instead of their content */
 export async function getPosts() {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
@@ -20,10 +21,17 @@ export async function getPosts() {
     depth: 0,
     limit: 0,
     pagination: false,
-    select: { title: true, slug: true, description: true, publishedAt: true, updatedAt: true },
+    select: {
+      title: true,
+      slug: true,
+      description: true,
+      content: true,
+      publishedAt: true,
+      updatedAt: true,
+    },
   });
 
-  return docs;
+  return docs.map(({ content, ...post }) => ({ ...post, tools: toolsIn(content) }));
 }
 
 /** The posts around the one with `slug` in the blog's order (newest first): `previous` is newer, `next` is older */

@@ -17,7 +17,7 @@ export async function GET() {
 
 ## Blog
 
-${posts.map((post) => `- [${post.title}](${absoluteUrl(`/blog/${post.slug}`)}): ${post.description}`).join('\n') || 'No posts yet.'}
+${posts.map((post) => `- [${post.title}](${absoluteUrl(`/blog/${post.slug}`)})${post.tools.length > 0 ? ' (a tool that runs in the browser)' : ''}: ${post.description}`).join('\n') || 'No posts yet.'}
 `;
 
   return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
