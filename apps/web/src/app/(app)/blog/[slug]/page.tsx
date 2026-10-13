@@ -1,3 +1,4 @@
+import { cn } from '@workspace/ui/lib/utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -46,6 +47,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
 
   const { previous, next } = await getAdjacentPosts(slug);
   const image = typeof post.featuredImage === 'object' ? post.featuredImage : undefined;
+  const darkImage = typeof post.featuredImageDark === 'object' ? post.featuredImageDark : undefined;
 
   return (
     <article className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-16">
@@ -77,7 +79,17 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
           width={image.width ?? 1200}
           height={image.height ?? 630}
           priority
-          className="rounded-xl"
+          className={cn('rounded-xl', darkImage?.url && 'dark:hidden')}
+        />
+      )}
+      {image?.url && darkImage?.url && (
+        <Image
+          src={darkImage.url}
+          alt={darkImage.alt}
+          width={darkImage.width ?? 1200}
+          height={darkImage.height ?? 630}
+          loading="eager"
+          className="hidden rounded-xl dark:block"
         />
       )}
       <RichText data={post.content} />

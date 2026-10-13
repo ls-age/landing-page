@@ -52,6 +52,23 @@ export const Posts: CollectionConfig<'posts'> = {
       admin: { position: 'sidebar' },
     },
     {
+      name: 'featuredImageDark',
+      label: 'Featured image (dark mode)',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+        description: 'Shown instead of the featured image in dark mode (optional).',
+        condition: (data) => Boolean(data.featuredImage),
+      },
+      hooks: {
+        // Goes with the featured image, so a stale one can't come back with a new featured image
+        beforeChange: [
+          ({ value, siblingData }) => (siblingData.featuredImage ? value : null), // eslint-disable-line unicorn/no-null
+        ],
+      },
+    },
+    {
       name: 'content',
       type: 'richText',
       required: true,

@@ -41,6 +41,13 @@ const postDraftParameters = {
     .optional()
     .describe('Publication date (ISO 8601). Published posts only show up from this date on'),
   featuredImage: z.string().nullable().optional().describe('Media ID, or null to remove it'),
+  featuredImageDark: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      'Media ID of a dark mode variant of the featured image (only with one; removing the featured image removes it too), or null to remove it',
+    ),
   metaTitle: z.string().optional().describe('SEO title if it should differ from the title'),
   metaDescription: z
     .string()
@@ -72,6 +79,9 @@ async function savePostDraft(input: PostDraftInput, request: PayloadRequest) {
       : { content: input.content as unknown as Post['content'] }),
     ...(input.publishedAt === undefined ? {} : { publishedAt: input.publishedAt }),
     ...(input.featuredImage === undefined ? {} : { featuredImage: input.featuredImage }),
+    ...(input.featuredImageDark === undefined
+      ? {}
+      : { featuredImageDark: input.featuredImageDark }),
     ...(input.metaTitle === undefined && input.metaDescription === undefined
       ? {}
       : { meta: { title: input.metaTitle, description: input.metaDescription } }),
