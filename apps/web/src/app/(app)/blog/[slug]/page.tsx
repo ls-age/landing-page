@@ -60,6 +60,7 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
           image: image?.url,
         })}
       />
+      <FeaturedImage post={post} important className="rounded-xl" />
       <header className="flex flex-col gap-3">
         <p className="text-muted-foreground text-sm">
           <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time> ·{' '}
@@ -70,7 +71,6 @@ export default async function PostPage({ params }: PageProps<'/blog/[slug]'>) {
         <h1 className="text-balance text-4xl font-semibold tracking-tight">{post.title}</h1>
         <p className="text-muted-foreground text-lg">{post.description}</p>
       </header>
-      <FeaturedImage post={post} important className="rounded-xl" />
       <RichText data={post.content} />
       {(previous || next) && (
         <footer className="border-t pt-8">
