@@ -42,6 +42,8 @@ const { links } = await check({
   linksToSkip: [
     // Answers automated requests with 403
     String.raw`^https://crates\.io/`,
+    // Rate-limits automated requests (429)
+    String.raw`^https://www\.instagram\.com/`,
   ],
 });
 
