@@ -222,6 +222,10 @@ export const toStl = (part: Part) =>
 export const fileName = (svgName: string, part: Part) =>
   `${svgName.replace(/\.svg$/i, '')}-${part.name}.stl`;
 
+/** How a part is shown: the base plate, or its color */
+export const partLabel = (part: Pick<Part, 'name'>) =>
+  part.name === 'base' ? 'Base plate' : `#${part.name}`;
+
 export function toZip(svgName: string, parts: Part[]) {
   return zipSync(Object.fromEntries(parts.map((part) => [fileName(svgName, part), toStl(part)])));
 }
