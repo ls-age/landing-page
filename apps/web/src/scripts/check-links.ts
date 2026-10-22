@@ -3,7 +3,8 @@
  * Crawls the site and reports broken links: `bun run integration:broken-links [url]`, by default
  * against the local dev server. Fails on broken links of my own pages; broken links inside the
  * GitHub READMEs shown on the open-source pages are only warnings, since their content isn't mine
- * to fix here.
+ * to fix here. Links that work on a second request are warnings too: Fresh deployments answer
+ * some first requests with an error (e.g. image optimizations from a function that just started).
  */
 import { check, type LinkResult, LinkState } from 'linkinator';
 
@@ -50,9 +51,30 @@ const { links } = await check({
 const isThirdParty = (link: LinkResult) =>
   !link.url.startsWith(origin) && new URL(link.parent ?? url).pathname.startsWith('/open-source/');
 
+/** Whether `link` works when requested again, a while after the crawl */
+async function recovers(link: LinkResult) {
+  try {
+    const response = await fetch(link.url, {
+      headers: link.url.startsWith(origin) ? headers : {},
+    });
+    await response.body?.cancel();
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 const broken = links.filter((link) => link.state === LinkState.BROKEN);
-const errors = broken.filter((link) => !isThirdParty(link));
 const warnings = broken.filter((link) => isThirdParty(link));
+const errors: LinkResult[] = [];
+const flaky: LinkResult[] = [];
+if (broken.length > warnings.length) {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  for (const link of broken) {
+    if (isThirdParty(link)) continue;
+    ((await recovers(link)) ? flaky : errors).push(link);
+  }
+}
 
 const print = (title: string, results: LinkResult[]) => {
   if (results.length === 0) return;
@@ -63,9 +85,10 @@ const print = (title: string, results: LinkResult[]) => {
 };
 
 print('Broken links in GitHub READMEs (warnings):', warnings);
+print('Links that worked on a second request (warnings):', flaky);
 print('Broken links:', errors);
 console.log(
-  `\nChecked ${links.length} links on ${origin}: ${errors.length} broken, ${warnings.length} warnings`,
+  `\nChecked ${links.length} links on ${origin}: ${errors.length} broken, ${warnings.length + flaky.length} warnings`,
 );
 
 if (errors.length > 0) process.exit(1);
