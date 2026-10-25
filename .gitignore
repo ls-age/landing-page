@@ -33,3 +33,4 @@ npm-debug.log*
 !/apps/web/src/__generated__/.gitkeep
 /apps/web/media
 .changeset/README.md
+.claude/private-terms.txt

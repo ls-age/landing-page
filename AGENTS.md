@@ -16,7 +16,15 @@ This repository is public, including its history, commit messages and PR descrip
 - Business-critical information: details of boraan, QRcard or Hechenbros that aren't public (customers, revenue, suppliers, prices, contracts, unreleased plans), personal data of anyone but Lukas's public profile, and internal infrastructure IDs or URLs that aren't needed in the code. Generic code Lukas wrote for his other projects may be reused (mentioning where it comes from is fine); their business logic, file paths, commit hashes and unreleased features may not.
 - Unpublished content: blog posts live in Payload, not in files.
 
-GitHub secret scanning with push protection blocks known token formats. For everything else, the `public-repo-guard` agent reviews changes (the `pre-pr` skill runs it); run it before pushing.
+GitHub secret scanning with push protection blocks known token formats. For everything else, the `public-repo-guard` agent reviews changes (the `pre-pr` skill runs it); run it before pushing. It skips `bun.lock`, `src/migrations/*.json` and the registry skills in `.claude/skills` (see `skills-lock.json`), and compares against the default branch `master`.
+
+## Shared skills and agents
+
+`add-migration`, `switch-preview-mcp`, `pre-pr` and the `public-repo-guard` agent come from [LukasHechenberger/workbench](https://github.com/LukasHechenberger/workbench) (`bunx skills add LukasHechenberger/workbench -s <name> -a claude-code --copy`; the agent is copied from `agents/` there). They read the project's details from this file:
+
+- `add-migration`: run from `apps/web`, scripts `build:payload`, `migration:create`, `check:types` and `migration:deploy`; the migrations directory is `src/migrations`; the adapter package is `@payloadcms/db-vercel-postgres`; the changeset names `@ls-age/web`; the local database is the Neon `dev` branch. The migration script passes a placeholder Blob token so the Vercel Blob plugin's `media` columns (`_objectkey`, `prefix`) stay in the schema; remove any statement that drops them.
+- `switch-preview-mcp`: variable `PAYLOAD_PREVIEW_MCP_URL`, endpoint `https://<host>/api/mcp`, only `https://*.vercel.app` hosts of the `lukashechenberger` Vercel project; token `PAYLOAD_PREVIEW_MCP_TOKEN`, bypass `VERCEL_PROTECTION_BYPASS`; regenerate `.mcp.json` with `bun run prepare` (see "MCP servers").
+- `pre-pr`: runs the commands under "Checks" (plus `bun run build`) and the `public-repo-guard` agent.
 
 ## Generated files
 
