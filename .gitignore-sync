@@ -56,3 +56,6 @@ npm-debug.log*
 
 # Changesets
 .changeset/README.md
+
+# Local deny-list for the public-repo-guard agent
+.claude/private-terms.txt
