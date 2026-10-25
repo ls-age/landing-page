@@ -52,6 +52,7 @@ import {
   defaultColorSettings,
   fileName,
   type ModelSettings,
+  partLabel,
   printedRegions,
   toMillimeters,
   toStl,
@@ -61,6 +62,7 @@ import { ModelPreview } from './model-preview';
 import { parseSvg } from './parse-svg';
 import { visibleRegions } from './regions';
 import { defaultLineWidth, findThinAreas, unprintableWidth } from './thin-areas';
+import { threeMfFileName, toThreeMf } from './three-mf';
 
 interface SvgFile {
   id: string;
@@ -459,6 +461,16 @@ function SvgModel({ file }: { file: SvgFile }) {
             <ButtonGroup>
               <Button
                 onClick={() =>
+                  download(threeMfFileName(file.name), toThreeMf(file.name, parts), 'model/3mf')
+                }
+              >
+                <DownloadIcon data-icon="inline-start" />
+                Download 3MF
+              </Button>
+              <ButtonGroupSeparator />
+              <Button
+                variant="outline"
+                onClick={() =>
                   download(
                     `${file.name.replace(/\.svg$/i, '')}.zip`,
                     toZip(file.name, parts),
@@ -466,13 +478,14 @@ function SvgModel({ file }: { file: SvgFile }) {
                   )
                 }
               >
-                <DownloadIcon data-icon="inline-start" />
-                Download all
+                Download STLs
               </Button>
               <ButtonGroupSeparator />
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={<Button size="icon" aria-label="Download single STLs" />}
+                  render={
+                    <Button variant="outline" size="icon" aria-label="Download single STLs" />
+                  }
                 >
                   <MoreHorizontalIcon />
                 </DropdownMenuTrigger>
@@ -492,7 +505,7 @@ function SvgModel({ file }: { file: SvgFile }) {
                           aria-hidden
                         />
                         <span className={cn(part.name !== 'base' && 'font-mono')}>
-                          {part.name === 'base' ? 'Base plate' : `#${part.name}`}
+                          {partLabel(part)}
                         </span>
                       </DropdownMenuItem>
                     ))}
